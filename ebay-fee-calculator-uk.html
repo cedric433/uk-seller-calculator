@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>eBay Fee Calculator UK | Profit & Margin Checker</title>
+<meta name="description" content="Free UK eBay fee calculator. Calculate business seller fees, category percentages, postage costs, and your final profit.">
+<link rel="canonical" href="https://cedric433.github.io/uk-seller-calculator/ebay-fee-calculator-uk.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="hero"><div>
+<h1>UK Seller Profit Calculator</h1>
+<p class="sub">See what you actually keep on eBay, Etsy, Depop and Vinted after fees, postage and costs.</p>
+<div class="chips"><span>Free</span><span>No sign-up</span><span id="upd">Rates updated</span></div>
+</div></header>
+<main class="layout">
+<section class="panel inputs" aria-label="Sale details">
+<div class="presets"><button type="button" data-preset="low">Low-value</button><button type="button" data-preset="free">Free postage</button><button type="button" data-preset="high">High-value</button><button type="button" data-preset="vatreg">VAT-registered</button><button type="button" id="reset">Reset</button></div>
+<fieldset><legend>The sale</legend><div class="g2">
+<div><label for="price">Item price</label><div class="in"><span>£</span><input id="price" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
+<div><label for="ship">Postage you charge</label><div class="in"><span>£</span><input id="ship" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
+</div></fieldset>
+<fieldset><legend>Your costs</legend><div class="g2">
+<div><label for="cost">Item cost</label><div class="in"><span>£</span><input id="cost" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
+<div><label for="shipCost">Postage you pay</label><div class="in"><span>£</span><input id="shipCost" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
+<div><label for="other">Packaging / other</label><div class="in"><span>£</span><input id="other" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
+</div></fieldset>
+<fieldset><legend>Fees and goal</legend><div class="g2">
+<div><label for="cat">eBay business fee</label><div class="in"><input id="cat" type="number" inputmode="decimal" min="0" max="100" step="0.1"><span>%</span></div></div>
+<div><label for="target">Profit you want</label><div class="in"><span>£</span><input id="target" type="number" inputmode="decimal" min="0" step="0.5"></div></div>
+</div></fieldset>
+<fieldset><legend>Options</legend>
+<label class="tg"><span>Add 20% VAT to eBay business and Etsy fees (on if you’re <b>not</b> VAT-registered)</span><input id="vat" type="checkbox"></label>
+<label class="tg"><span>Etsy sale came via Offsite Ads (15%)</span><input id="ads" type="checkbox"></label>
+<label class="tg"><span>Depop sale used a Boosted Listing (12%)</span><input id="boost" type="checkbox"></label>
+</fieldset>
+<p id="warn" role="alert"></p>
+</section>
+
+<section aria-live="polite" aria-label="Results">
+<p id="summary"></p>
+<div class="panel tablebox"><table id="table"></table></div>
+<div id="cards" class="cards"></div>
+</section>
+
+<div class="panel wide">
+<h2>Saved calculations</h2>
+<div class="row"><div><label for="note">Name (optional)</label><input id="note" type="text" maxlength="40"></div><button type="button" id="saveCalc" class="primary">Save this calculation</button></div>
+<div id="history"></div>
+<button type="button" id="clearHist" hidden>Clear all</button>
+</div>
+
+<div class="panel notes wide">
+<h2>Sources and assumptions</h2>
+<div id="sources"></div>
+<ul>
+<li>Percentage fees apply to item price plus postage charged. Margin = profit ÷ (item price + postage charged). Money is shown to the nearest penny, and target prices are rounded up to the next penny.</li>
+<li>Highest profit only compares profit. It ignores demand, selling speed and whether you’re allowed to use that account type (eBay’s private rate is for casual selling, not trading).</li>
+<li>Estimates only. Not tax or financial advice. Your last-used values and up to 20 saved calculations are stored in your browser only.</li>
+</ul>
+</div>
+
+<article class="panel wide notes">
+  <h2>eBay UK Selling FAQs</h2>
+  <p><b>How much are eBay fees in the UK?</b><br>As of October 2024, private sellers pay no final value fees. Business sellers pay a category percentage (often around 11.9% for clothing) plus a fixed £0.30 per order (£0.40 if the order is over £10), and a 0.35% regulatory fee.</p>
+  <p><b>Do I pay fees on postage?</b><br>Yes, eBay calculates your percentage fee based on the total amount the buyer pays, which includes the item price and the postage you charge.</p>
+  <p><b>What about VAT?</b><br>eBay’s base fees are shown excluding VAT. If you are not a VAT-registered business, a 20% VAT charge is added to your fees.</p>
+</article>
+
+</main>
+<script src="fees.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
