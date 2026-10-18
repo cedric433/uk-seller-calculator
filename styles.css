@@ -126,8 +126,8 @@ h2 {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #3b78a6;
-  box-shadow: 0 0 8px rgba(59, 120, 166, 0.6);
+  background-color: var(--accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 .chips span:last-child::before {
