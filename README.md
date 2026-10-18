@@ -19,5 +19,16 @@ Rates live in `fees.js`. Percentage fees apply to item price plus postage charge
 ## Updating fees
 Edit the numbers in `fees.js`, change `CONFIG.updated`, and check `tests.html` still passes.
 
+## Automated checks
+Every pull request and push to main runs (see `.github/workflows/ci.yml`):
+- **Lint:** html-validate for the HTML, ESLint for the JavaScript.
+- **Browser tests:** Playwright runs the calculator in Chromium, including `tests.html` and an accessibility scan (axe).
+- **Lighthouse:** speed, accessibility, best-practice and SEO scores (warnings only).
+- **Link check:** finds broken links (advisory only).
+
+AI code review comes from the Gemini Code Assist GitHub app, guided by `.gemini/styleguide.md`.
+
+To run locally: `npm install`, then `npm run lint` and `npm test`.
+
 ## Disclaimer
 Estimates only. Platforms change fees often. This is not tax, legal or financial advice. Always confirm on each platform's own fee page.

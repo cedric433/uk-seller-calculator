@@ -5,8 +5,8 @@
   var $ = function (i) { return document.getElementById(i); };
   var gbp = function (n) { return (n < 0 ? "-" : "") + "£" + Math.abs(n).toFixed(2); };
   function apply(s) { F.forEach(function (f) { if (s[f] !== undefined) $(f).value = s[f]; }); C.forEach(function (c) { if (s[c] !== undefined) $(c).checked = !!s[c]; }); }
-  function save() { try { var s = {}; F.forEach(function (f) { s[f] = $(f).value; }); C.forEach(function (c) { s[c] = $(c).checked; }); localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
-  function load() { var s = DEF; try { var r = localStorage.getItem(KEY); if (r) s = Object.assign({}, DEF, JSON.parse(r)); } catch (e) {} apply(s); }
+  function save() { try { var s = {}; F.forEach(function (f) { s[f] = $(f).value; }); C.forEach(function (c) { s[c] = $(c).checked; }); localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage unavailable */ } }
+  function load() { var s = DEF; try { var r = localStorage.getItem(KEY); if (r) s = Object.assign({}, DEF, JSON.parse(r)); } catch { /* storage unavailable */ } apply(s); }
   function read() {
     var o = {}, w = [];
     F.forEach(function (f) { var raw = parseFloat($(f).value); if (raw < 0 && w.indexOf("Negative values are treated as £0.") < 0) w.push("Negative values are treated as £0."); o[f] = clean(raw, f === "cat" ? 100 : 100000); });
@@ -38,8 +38,8 @@
     }).join("");
   }
   var HKEY = "ukspc.history.v1", HMAX = 20;
-  function hload() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch (e) { return []; } }
-  function hsave(a) { try { localStorage.setItem(HKEY, JSON.stringify(a)); } catch (e) {} }
+  function hload() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch { return []; } }
+  function hsave(a) { try { localStorage.setItem(HKEY, JSON.stringify(a)); } catch { /* storage unavailable */ } }
   function mk(t, fn) { var b = document.createElement("button"); b.type = "button"; b.textContent = t; b.addEventListener("click", fn); return b; }
   function addHistory() {
     var o = read().o;
@@ -68,7 +68,7 @@
   $("clearHist").addEventListener("click", function () { if (confirm("Delete all saved calculations?")) { hsave([]); renderHistory(); } });
   document.querySelectorAll("input").forEach(function (e) { e.addEventListener("input", function () { save(); render(); }); e.addEventListener("change", function () { save(); render(); }); });
   document.querySelectorAll("[data-preset]").forEach(function (b) { b.addEventListener("click", function () { apply(PRE[b.getAttribute("data-preset")]); save(); render(); }); });
-  $("reset").addEventListener("click", function () { apply(DEF); try { localStorage.removeItem(KEY); } catch (e) {} render(); });
+  $("reset").addEventListener("click", function () { apply(DEF); try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ } render(); });
   $("upd").textContent = "Rates updated " + CONFIG.updated;
   load(); sources(); render(); renderHistory();
 })();

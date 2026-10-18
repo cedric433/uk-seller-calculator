@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>UK Seller Profit Calculator: eBay, Etsy, Depop & Vinted</title>
+<title>UK Seller Profit Calculator: eBay, Etsy, Depop &amp; Vinted</title>
 <meta name="description" content="Compare what you keep after fees on eBay UK, Etsy UK, Depop and Vinted. Free, instant, no sign-up.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-48.png" sizes="48x48" type="image/png">
@@ -17,7 +17,7 @@
 <div class="chips"><span>Free</span><span>No sign-up</span><span id="upd">Rates updated</span></div>
 </div></header>
 <main class="layout">
-<form class="panel inputs" onsubmit="return false" aria-label="Sale details">
+<section class="panel inputs" aria-label="Sale details">
 <div class="presets"><button type="button" data-preset="low">Low-value</button><button type="button" data-preset="free">Free postage</button><button type="button" data-preset="high">High-value</button><button type="button" data-preset="vatreg">VAT-registered</button><button type="button" id="reset">Reset</button></div>
 <fieldset><legend>The sale</legend><div class="g2">
 <div><label for="price">Item price</label><div class="in"><span>£</span><input id="price" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
@@ -38,7 +38,7 @@
 <label class="tg"><span>Depop sale used a Boosted Listing (12%)</span><input id="boost" type="checkbox"></label>
 </fieldset>
 <p id="warn" role="alert"></p>
-</form>
+</section>
 
 <section aria-live="polite" aria-label="Results">
 <p id="summary"></p>
