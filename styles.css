@@ -103,7 +103,7 @@ h2 {
 
 .chip.active {
   border-color: #3f3f46;
-  background: #18181b;
+  background: var(--accent-soft);
   color: #e4e4e7;
 }
 
