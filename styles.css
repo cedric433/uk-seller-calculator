@@ -819,7 +819,7 @@ summary {
   justify-content: center;
 }
 
-.color-navy { color: #ffffff; }
+.color-navy { color: var(--text); }
 
 .color-blue {
   color: #3b78a6;
