@@ -15,10 +15,10 @@ test("Etsy UK fees have not changed", async ({ page }) => {
   expect(text).toContain("15%"); // Offsite ads
 });
 
-test("Vinted UK seller fees are still zero", async ({ page }) => {
+test("Vinted UK seller fees are still zero", { tag: "@monitor" }, async ({ page }) => {
   await page.goto("https://www.vinted.co.uk/pricelist");
-  const text = await page.locator("body").innerText();
+  const body = page.locator("body");
   // Vinted uses Cloudflare heavily, so this may occasionally fail just from bot-blocking, 
   // which safely acts as a prompt for you to check it manually.
-  expect(text.toLowerCase()).toContain("no fees for selling"); 
+  await expect(body).toContainText(/no fees for selling/i);
 });
