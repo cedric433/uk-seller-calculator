@@ -140,7 +140,9 @@ test("mobile comparison fits the viewport and keeps fee details expandable", asy
   await expect(page).toHaveURL(/#price$/);
   await page.locator("#price").focus();
   await expect(mobileJump).toBeHidden();
-  await page.locator(".fee-details summary").first().click();
+  const feeSummary = page.locator(".fee-details summary").first();
+  await feeSummary.scrollIntoViewIfNeeded();
+  await feeSummary.click();
   await expect(page.locator(".fee-details").first()).toHaveAttribute("open", "");
 });
 
