@@ -167,10 +167,32 @@
       }
     }
   }
-  function sources() {
-    $("sources").innerHTML = "<p>Rates last updated <b>" + CONFIG.updated + "</b>. Platforms change fees often, so confirm on each site.</p>" + CONFIG.platforms.map(function (p) {
+  function sources(updatedDate, failed) {
+    var updateMessage = updatedDate
+      ? "Rates last updated <b>" + updatedDate + "</b>. Platforms change fees often, so confirm on each site."
+      : failed
+        ? "The rate update date could not be verified. Platforms change fees often, so confirm current rates on each site."
+        : "Checking when rates were last updated…";
+    $("sources").innerHTML = "<p>" + updateMessage + "</p>" + CONFIG.platforms.map(function (p) {
       return "<details><summary>" + p.name + "</summary><p><b>Included:</b> " + p.incl + "</p><p><b>Not included:</b> " + p.excl + "</p><p>Source: " + (p.src ? '<a href="' + p.src + '" target="_blank" rel="noopener noreferrer">' + p.srcName + "</a>" : p.srcName) + "</p></details>";
     }).join("");
+  }
+  function updateRateDate() {
+    var updated = $("upd");
+    var statusDot = updated.querySelector(".status-dot");
+    window.fetch("fees.js?rate-date", {method: "HEAD", cache: "no-store"}).then(function (response) {
+      if (!response.ok) throw new Error("Rate source returned HTTP " + response.status);
+      var lastModified = response.headers.get("Last-Modified");
+      var date = lastModified && new Date(lastModified);
+      if (!date || !Number.isFinite(date.getTime())) throw new Error("Rate source has no valid Last-Modified date");
+      var formatted = date.toLocaleDateString("en-GB", {day: "numeric", month: "long", year: "numeric", timeZone: "UTC"});
+      updated.replaceChildren(statusDot, document.createTextNode("Rates updated " + formatted));
+      sources(formatted);
+    }).catch(function (error) {
+      window.console.warn("Unable to verify when rates were last updated.", error);
+      updated.replaceChildren(statusDot, document.createTextNode("Rate update date unavailable"));
+      sources(null, true);
+    });
   }
   var HKEY = "ukspc.history.v1", HMAX = 20;
   function hload() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch { return []; } }
@@ -276,8 +298,5 @@
     try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ }
     render(); $("resultStatus").textContent = "Calculator reset to the example values.";
   });
-  var updated = $("upd");
-  var statusDot = updated.querySelector(".status-dot");
-  updated.replaceChildren(statusDot, document.createTextNode("Rates updated " + CONFIG.updated));
-  load(); sources(); render(); renderHistory();
+  load(); sources(); render(); renderHistory(); updateRateDate();
 })();

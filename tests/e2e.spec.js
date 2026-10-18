@@ -14,6 +14,29 @@ test("shows all five platforms and a winner", async ({ page }) => {
   await expect(page.locator("#table")).toHaveCount(0);
 });
 
+test("rate update date follows fees.js and former hero badges are absent", async ({ page }) => {
+  let lastModified = "Sun, 18 Oct 2026 00:00:00 GMT";
+  await page.route("**/fees.js*", async route => {
+    if (route.request().method() === "HEAD") {
+      await route.fulfill({status: 200, headers: {"Last-Modified": lastModified}});
+      return;
+    }
+    await route.continue();
+  });
+
+  for (const path of ["/", "/ebay-fee-calculator-uk.html", "/etsy-fee-calculator-uk.html", "/depop-fee-calculator-uk.html", "/vinted-profit-calculator.html"]) {
+    await page.goto(path);
+    await expect(page.locator("#upd")).toHaveText("Rates updated 18 October 2026");
+    await expect(page.locator("#sources")).toContainText("Rates last updated 18 October 2026");
+    await expect(page.locator(".chips")).not.toContainText(/Free tool|No sign-up/);
+  }
+
+  lastModified = "Mon, 19 Oct 2026 00:00:00 GMT";
+  await page.reload();
+  await expect(page.locator("#upd")).toHaveText("Rates updated 19 October 2026");
+  await expect(page.locator("#sources")).toContainText("Rates last updated 19 October 2026");
+});
+
 test("input panel stays sticky within its grid row without overlapping source details", async ({ page }) => {
   for (const viewport of [{ width: 1280, height: 800 }, { width: 640, height: 800 }]) {
     await page.setViewportSize(viewport);

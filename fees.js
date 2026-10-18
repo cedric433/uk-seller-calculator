@@ -1,6 +1,5 @@
 /* Fee rates and calculation logic. Update RATES here when platforms change fees. */
 var CONFIG = {
-  updated: "18 October 2026",
   vat: 0.20,
   platforms: [
     {k:"ebayp", name:"eBay UK (private)", tag:"Casual sellers", caveat:"Private seller rates are for casual selling, not regular trading. Check which account type applies to you.", src:"https://www.ebay.co.uk/help/selling/selling-fees/Fees-business-sellers?id=4809", srcName:"eBay UK fees page",
