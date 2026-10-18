@@ -37,8 +37,37 @@
       return "<details><summary>" + p.name + "</summary><p><b>Included:</b> " + p.incl + "</p><p><b>Not included:</b> " + p.excl + "</p><p>Source: " + (p.src ? '<a href="' + p.src + '" rel="noopener">' + p.srcName + "</a>" : p.srcName) + "</p></details>";
     }).join("");
   }
+  var HKEY = "ukspc.history.v1", HMAX = 20;
+  function hload() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch (e) { return []; } }
+  function hsave(a) { try { localStorage.setItem(HKEY, JSON.stringify(a)); } catch (e) {} }
+  function mk(t, fn) { var b = document.createElement("button"); b.type = "button"; b.textContent = t; b.addEventListener("click", fn); return b; }
+  function addHistory() {
+    var o = read().o;
+    if (o.price === 0) { $("warn").textContent = "Enter an item price above £0 before saving."; return; }
+    var inp = {}; F.forEach(function (f) { inp[f] = $(f).value; }); C.forEach(function (c) { inp[c] = $(c).checked; });
+    var best = null;
+    CONFIG.platforms.forEach(function (p) { var v = profit(p.k, o.price, o); if (!best || v > best.v) best = {n: p.name, v: v}; });
+    var a = hload(); a.unshift({t: Date.now(), note: ($("note").value || "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
+    hsave(a.slice(0, HMAX)); $("note").value = ""; renderHistory();
+  }
+  function renderHistory() {
+    var a = hload(), box = $("history"); box.textContent = ""; $("clearHist").hidden = !a.length;
+    if (!a.length) { var p = document.createElement("p"); p.textContent = "No saved calculations yet."; box.appendChild(p); return; }
+    a.forEach(function (e, i) {
+      var row = document.createElement("div"), txt = document.createElement("div");
+      row.className = "hrow";
+      var d = new Date(e.t).toLocaleString("en-GB", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"});
+      txt.textContent = (e.note ? e.note + " · " : "") + gbp(clean(e.inp.price)) + " item, cost " + gbp(clean(e.inp.cost)) + " → " + e.best + " " + gbp(e.profit) + " (" + d + ")";
+      row.appendChild(txt);
+      row.appendChild(mk("Load", function () { apply(e.inp); save(); render(); }));
+      row.appendChild(mk("Delete", function () { var h = hload(); h.splice(i, 1); hsave(h); renderHistory(); }));
+      box.appendChild(row);
+    });
+  }
+  $("saveCalc").addEventListener("click", addHistory);
+  $("clearHist").addEventListener("click", function () { if (confirm("Delete all saved calculations?")) { hsave([]); renderHistory(); } });
   document.querySelectorAll("input").forEach(function (e) { e.addEventListener("input", function () { save(); render(); }); e.addEventListener("change", function () { save(); render(); }); });
   document.querySelectorAll("[data-preset]").forEach(function (b) { b.addEventListener("click", function () { apply(PRE[b.getAttribute("data-preset")]); save(); render(); }); });
   $("reset").addEventListener("click", function () { apply(DEF); try { localStorage.removeItem(KEY); } catch (e) {} render(); });
-  load(); sources(); render();
+  load(); sources(); render(); renderHistory();
 })();

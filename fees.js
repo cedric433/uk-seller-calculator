@@ -11,8 +11,8 @@ var CONFIG = {
       incl:"£0.15 listing, 6.5% transaction, 4% + £0.20 processing, 0.48% regulatory fee (from 22 June 2026), optional 15% Offsite Ads, optional 20% VAT on fees.", excl:"Etsy Ads, currency conversion, shipping labels, payment reserves."},
     {k:"depop", name:"Depop UK", tag:"Fashion resale", src:"https://depophelp.zendesk.com", srcName:"Depop Help Centre",
       incl:"2.9% + £0.30 payment processing, optional 12% boost fee.", excl:"Shipping label costs. Sources conflict on the UK selling fee; 0% is assumed, so verify."},
-    {k:"vinted", name:"Vinted UK", tag:"Zero seller fees", src:"", srcName:"Vinted Help Centre (pricelist)",
-      incl:"No seller fees.", excl:"Paid boosts and shipping. The buyer protection fee is paid by the buyer and is not shown."}
+    {k:"vinted", name:"Vinted UK", tag:"Zero seller fees", src:"https://www.vinted.co.uk/pricelist", srcName:"Vinted price list (updated 8 Oct 2026)",
+      incl:"No seller fee on sales.", excl:"Optional paid Bump and Showcase fees (price varies), and shipping. Buyers pay the Vinted fee (about 3% to 8% + £0.30 to £0.80), which is not shown."}
   ]
 };
 function clean(v, max) { v = parseFloat(v); if (!isFinite(v) || v < 0) return 0; return Math.min(v, max || 100000); }

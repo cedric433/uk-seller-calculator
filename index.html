@@ -38,13 +38,20 @@
 <div id="cards" class="cards"></div>
 </div>
 
+<div class="panel">
+<h2>Saved calculations</h2>
+<div class="row"><div><label for="note">Name (optional)</label><input id="note" type="text" maxlength="40"></div><button type="button" id="saveCalc">Save this calculation</button></div>
+<div id="history"></div>
+<button type="button" id="clearHist" hidden>Clear all</button>
+</div>
+
 <div class="panel notes" style="margin-top:16px">
 <h2>Sources and assumptions</h2>
 <div id="sources"></div>
 <ul>
 <li>Percentage fees apply to item price plus postage charged. Margin = profit ÷ (item price + postage charged). Money is shown to the nearest penny, and target prices are rounded up to the next penny.</li>
 <li>Highest profit only compares profit. It ignores demand, selling speed and whether you’re allowed to use that account type (eBay’s private rate is for casual selling, not trading).</li>
-<li>Estimates only. Not tax or financial advice. Your last-used values are saved in your browser only.</li>
+<li>Estimates only. Not tax or financial advice. Your last-used values and up to 20 saved calculations are stored in your browser only.</li>
 </ul>
 </div>
 </main>

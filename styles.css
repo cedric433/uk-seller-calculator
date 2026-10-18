@@ -8,7 +8,7 @@ h1{font-size:1.6rem;margin:.2em 0 .1em}h2{font-size:1.1rem;margin:0 0 8px}.sub{c
 fieldset{border:0;margin:0;padding:0}legend{font-weight:600;margin-bottom:8px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:4px}
-input[type=number]{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
+input[type=number],input[type=text]{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
 .chk{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;color:var(--text);margin-top:12px}.chk input{margin-top:4px}
 button{font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--text);cursor:pointer;margin:0 6px 6px 0}
 button:hover{border-color:var(--accent)}
@@ -25,3 +25,5 @@ ul{list-style:none;margin:0;padding:8px 0 0;border-top:1px solid var(--line);fon
 li{display:flex;justify-content:space-between;gap:8px;padding:2px 0}li span:first-child{color:var(--muted)}
 .notes{font-size:.85rem;color:var(--muted)}.notes ul{list-style:disc;padding-left:18px;border:0}.notes li{display:list-item}
 details{border-top:1px solid var(--line);padding:6px 0}summary{cursor:pointer;font-weight:600}a{color:var(--accent)}
+.row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px}.row>div{flex:1 1 220px}
+.hrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}.hrow div{flex:1 1 220px}

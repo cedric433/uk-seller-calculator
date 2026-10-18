@@ -7,6 +7,9 @@ Enter your item price, postage, costs and target profit. It shows fees, profit, 
 
 **Example:** £30 item + £3 postage, cost £8, postage paid £3, packaging £0.50. On Vinted you keep £21.50. On eBay (business, 11.9%) and Etsy, fees come off the £33 order total, so profit is lower.
 
+## Saved calculations
+Click "Save this calculation" to keep the current inputs (up to 20, newest first). Use Load to restore one or Delete to remove it. They are stored in your own browser only.
+
 ## How fees are calculated
 Rates live in `fees.js`. Percentage fees apply to item price plus postage charged. Margin is profit ÷ (item price + postage charged). Target prices are rounded up to the next penny.
 
