@@ -779,64 +779,64 @@ summary {
 
 @media (min-width: 900px) {
   .layout {
-    grid-template-columns: 48px minmax(300px, 370px) minmax(0, 1fr);
+    grid-template-columns: 112px minmax(300px, 370px) minmax(0, 1fr);
     gap: 20px;
   }
 
   .scroll-tracker {
     position: sticky;
-    top: 32vh;
+    top: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    height: max-content;
     grid-column: 1;
     grid-row: 1 / span 2;
     align-self: start;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    padding: 12px 0;
+    padding-left: 4px;
   }
 
   .track-line {
     position: absolute;
-    top: 20px;
-    bottom: 20px;
-    left: 50%;
+    top: 10px;
+    bottom: 10px;
+    left: 11px;
     width: 2px;
-    background: var(--line);
-    transform: translateX(-50%);
+    background-color: #27272a;
+    z-index: 0;
   }
 
   .track-step {
-    position: relative;
-    z-index: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 5px;
-    width: 100%;
-    color: var(--muted);
-    font-size: 0.68rem;
-    font-weight: 650;
-    line-height: 1;
-    text-align: center;
-    transition: color 0.2s ease;
+    gap: 16px;
+    z-index: 1;
   }
 
   .track-dot {
-    width: 12px;
-    height: 12px;
-    border: 2px solid var(--line);
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: var(--card);
-    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    background-color: #18181b;
+    border: 2px solid #3f3f46;
+    transition: all 0.3s ease;
   }
 
-  .track-step.is-active { color: var(--accent); }
+  .track-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #71717a;
+    transition: color 0.3s ease;
+  }
 
-  .track-step.is-active .track-dot {
-    border-color: var(--accent);
-    background: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+  .track-step.active .track-dot {
+    background-color: #3b78a6;
+    border-color: #3b78a6;
+    box-shadow: 0 0 0 4px rgba(59, 120, 166, 0.2);
+  }
+
+  .track-step.active .track-label {
+    color: #e2e8f0;
   }
 
   .inputs-wrapper,

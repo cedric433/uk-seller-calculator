@@ -74,16 +74,19 @@ test("scroll tracker is wired to the sale, costs, and results on every calculato
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto(path);
     await expect(page.locator(".scroll-tracker")).toBeVisible();
+    await expect(page.locator(".scroll-tracker > .track-line")).toHaveCount(1);
+    await expect(page.locator(".track-step.active")).toHaveCount(1);
+    await expect(page.locator('.track-step[data-target="sale-step"]')).toHaveClass(/active/);
     for (const target of ["sale-step", "costs-step", "results-step"]) {
       await expect(page.locator(`#${target}`)).toHaveCount(1);
       await expect(page.locator(`.track-step[data-target="${target}"]`)).toHaveCount(1);
     }
-    await page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.querySelector('#costs-step').getBoundingClientRect().top + window.scrollY - window.innerHeight / 2)");
-    await expect(page.locator('.track-step[data-target="costs-step"]')).toHaveClass(/is-active/);
+    await page.evaluate("document.querySelector('#costs-step').scrollIntoView({ block: 'center' })");
+    await expect(page.locator('.track-step[data-target="costs-step"]')).toHaveClass(/active/);
     if (path === "/") {
       await page.setViewportSize({ width: 1024, height: 650 });
       await expect(page.locator(".scroll-tracker")).toBeVisible();
-      await expect(page.locator(".track-step.is-active")).toHaveCount(1);
+      await expect(page.locator(".track-step.active")).toHaveCount(1);
     }
   }
 });
