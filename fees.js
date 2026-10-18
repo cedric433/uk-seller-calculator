@@ -17,16 +17,18 @@ var CONFIG = {
 };
 function clean(v, max) { v = parseFloat(v); if (!isFinite(v) || v < 0) return 0; return Math.min(v, max || 100000); }
 function fees(k, price, o) {
-  var base = price + o.ship, L = [], sum = 0;
+  o = o || {};
+  var qty = clean(o.qty, 100000) || 1;
+  var base = price * qty + o.ship, L = [], sum = 0;
   function add(l, v) { L.push([l, v]); sum += v; }
   if (k === "ebayb") { add("Final value fee (" + o.cat + "%)", base * o.cat / 100); add("Per-order fee", base > 10 ? 0.40 : 0.30); add("Regulatory fee (0.35%)", base * 0.0035); }
-  else if (k === "etsy") { add("Listing fee", 0.15); add("Transaction fee (6.5%)", base * 0.065); add("Processing (4% + £0.20)", base * 0.04 + 0.20); add("Regulatory fee (0.48%)", base * 0.0048); if (o.ads) add("Offsite Ads (15%)", base * 0.15); }
-  else if (k === "depop") { add("Processing (2.9% + £0.30)", base * 0.029 + 0.30); if (o.boost) add("Boost fee (12%)", price * 0.12); }
+  else if (k === "etsy") { add("Listing fee", 0.15 * qty); add("Transaction fee (6.5%)", base * 0.065); add("Processing (4% + £0.20)", base * 0.04 + 0.20); add("Regulatory fee (0.48%)", base * 0.0048); if (o.ads) add("Offsite Ads (15%)", base * 0.15); }
+  else if (k === "depop") { add("Processing (2.9% + £0.30)", base * 0.029 + 0.30); if (o.boost) add("Boost fee (12%)", price * qty * 0.12); }
   if (o.vat && (k === "ebayb" || k === "etsy")) add("VAT on fees (20%)", sum * CONFIG.vat);
   if (!L.length) L.push(["Platform fees", 0]);
   return {L: L, total: sum, base: base};
 }
-function profit(k, price, o) { var f = fees(k, price, o); return f.base - f.total - o.cost - o.shipCost - o.other; }
+function profit(k, price, o) { o = o || {}; var f = fees(k, price, o), qty = clean(o.qty, 100000) || 1; return f.base - f.total - (o.cost || 0) * qty - (o.shipCost || 0) - (o.other || 0); }
 function need(k, o) { /* price needed for target profit, rounded up to the next penny */
   var lo = 0, hi = 5000, i, m;
   if (profit(k, hi, o) < o.target) return null;

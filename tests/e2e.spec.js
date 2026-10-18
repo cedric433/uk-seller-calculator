@@ -3,7 +3,7 @@ const AxeBuilder = require("@axe-core/playwright").default;
 
 test("built-in calculator checks all pass", async ({ page }) => {
   await page.goto("/tests.html");
-  await expect(page.locator("#out li")).toHaveCount(8);
+  await expect(page.locator("#out li")).toHaveCount(10);
   await expect(page.locator("#out li", { hasText: "FAIL" })).toHaveCount(0);
 });
 
@@ -46,6 +46,27 @@ test("input panel stays sticky within its grid row without overlapping source de
 test("default numbers give the right Vinted profit", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("£21.50");
+});
+
+test("quantity and category selections recalculate every calculator page", async ({ page }) => {
+  await page.addInitScript("localStorage.clear()");
+  for (const path of ["/", "/ebay-fee-calculator-uk.html", "/etsy-fee-calculator-uk.html", "/depop-fee-calculator-uk.html", "/vinted-profit-calculator.html"]) {
+    await page.goto(path);
+    await expect(page.locator("#qty")).toHaveValue("1");
+    await expect(page.locator("#ebay-fee-input")).toHaveValue("11.9");
+    await expect(page.locator("#platformCards .platform-result")).toHaveCount(5);
+    await page.selectOption("#ebay-category", "6.9");
+    await expect(page.locator("#ebay-fee-input")).toHaveValue("6.9");
+    await expect(page.locator("#platformCards .platform-result").filter({ hasText: "eBay UK (business)" })).toContainText("Final value fee (6.9%)");
+    await page.fill("#qty", "2");
+    await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("£43.50");
+    await expect(page.locator(".profit-details summary").first()).toHaveText("Profit breakdown");
+    await page.locator(".profit-details summary").first().click();
+    await expect(page.locator(".profit-breakdown").first()).toContainText("Total Revenue");
+    await expect(page.locator(".profit-breakdown").first()).toContainText("Total Item Cost");
+    await expect(page.locator(".profit-breakdown").first()).toContainText("Shipping & Packaging");
+    await expect(page.locator(".profit-breakdown").first()).toContainText("Net Profit");
+  }
 });
 
 test("shows fee caveats next to the affected platform estimates", async ({ page }) => {

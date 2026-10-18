@@ -2,7 +2,7 @@
 <body style="font:16px system-ui;padding:20px"><h1>Calculator tests</h1><ul id="out"></ul>
 <script src="fees.js"></script>
 <script>
-var o={ship:3,cost:0,shipCost:0,other:0,cat:11.9,target:5,vat:false,ads:false,boost:false};
+var o={ship:3,cost:0,shipCost:0,other:0,qty:1,cat:11.9,target:5,vat:false,ads:false,boost:false};
 function t(n,ok){var li=document.createElement("li");li.textContent=(ok?"PASS: ":"FAIL: ")+n;li.style.color=ok?"green":"red";document.getElementById("out").appendChild(li)}
 function near(a,b){return Math.abs(a-b)<0.01}
 t("eBay business £40 + £3 postage fees ≈ £5.67 (ex VAT)",near(fees("ebayb",40,o).total,5.67));
@@ -13,4 +13,6 @@ t("Offsite Ads add 15% of order total",near(fees("etsy",40,Object.assign({},o,{a
 t("Zero postage and very low price still calculate",isFinite(profit("etsy",0.5,Object.assign({},o,{ship:0}))));
 t("Negative and blank input clean to 0",clean(-5)===0&&clean("")===0);
 var n=need("etsy",o);t("Target price delivers at least the target profit",profit("etsy",n,o)>=o.target-0.005);
+t("Quantity multiplies item revenue and item costs",profit("vinted",30,Object.assign({},o,{qty:3,cost:8,shipCost:3,other:0.5}))===65.5);
+t("Etsy listing fees apply to each item quantity",near(fees("etsy",30,Object.assign({},o,{qty:3})).L[0][1],0.45));
 </script></body>
