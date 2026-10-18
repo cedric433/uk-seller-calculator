@@ -13,6 +13,24 @@ test("shows all five platforms and a winner", async ({ page }) => {
   await expect(page.locator("#summary")).toContainText("Highest profit");
 });
 
+test("input panel does not overlap source details while scrolling", async ({ page }) => {
+  for (const viewport of [{ width: 1280, height: 800 }, { width: 640, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const inputPanel = page.locator(".inputs");
+    const sourceDetails = page.locator("#sources details summary").first();
+    await sourceDetails.scrollIntoViewIfNeeded();
+    const [inputBox, sourceBox] = await Promise.all([inputPanel.boundingBox(), sourceDetails.boundingBox()]);
+    expect(inputBox).not.toBeNull();
+    expect(sourceBox).not.toBeNull();
+    const overlaps = inputBox.x < sourceBox.x + sourceBox.width &&
+      inputBox.x + inputBox.width > sourceBox.x &&
+      inputBox.y < sourceBox.y + sourceBox.height &&
+      inputBox.y + inputBox.height > sourceBox.y;
+    expect(overlaps).toBe(false);
+  }
+});
+
 test("default numbers give the right Vinted profit", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#table tbody tr", { hasText: "Vinted UK" })).toContainText("£21.50");
