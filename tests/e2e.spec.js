@@ -78,7 +78,8 @@ test("scroll tracker is wired to the sale, costs, and results on every calculato
       await expect(page.locator(`#${target}`)).toHaveCount(1);
       await expect(page.locator(`.track-step[data-target="${target}"]`)).toHaveCount(1);
     }
-    await page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.querySelector('#costs-step').getBoundingClientRect().top + window.scrollY - window.innerHeight / 2)");
+    await expect(page.locator('.track-step[data-target="sale-step"]')).toHaveClass(/is-active/);
+    await page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; var costs = document.querySelector('#costs-step'); window.scrollTo(0, costs.getBoundingClientRect().top + window.scrollY + costs.offsetHeight / 2 - window.innerHeight / 2)");
     await expect(page.locator('.track-step[data-target="costs-step"]')).toHaveClass(/is-active/);
     if (path === "/") {
       await page.setViewportSize({ width: 1024, height: 650 });
