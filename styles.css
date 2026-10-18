@@ -833,7 +833,7 @@ summary {
   line-height: 1;
 }
 
-.brand-icon { color: #3b78a6; }
+.brand-icon { color: var(--accent); }
 
 h1, h2, h3, h4, h5, h6, .brand-title, .hook-title {
   font-family: var(--font-serif);
