@@ -182,8 +182,11 @@
     var inp = {}; F.forEach(function (f) { inp[f] = $(f).value; }); C.forEach(function (c) { inp[c] = $(c).checked; });
     var best = null;
     CONFIG.platforms.forEach(function (p) { var v = profit(p.k, o.price, o); if (!best || v > best.v) best = {n: p.name, v: v}; });
-    var a = hload(); a.unshift({t: Date.now(), note: (saveNameField().value || "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
-    hsave(a.slice(0, HMAX)); saveNameField().value = ""; renderHistory();
+    var nameField = saveNameField();
+    var a = hload(); a.unshift({t: Date.now(), note: (nameField ? nameField.value : "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
+    hsave(a.slice(0, HMAX));
+    if (nameField) nameField.value = "";
+    renderHistory();
     $("resultStatus").textContent = "Calculation saved on this device.";
   }
   function renderHistory() {
@@ -209,11 +212,12 @@
       box.appendChild(row);
     });
   }
-  saveButton().addEventListener("click", addHistory);
-  saveNameField().addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
+  var historySaveButton = saveButton(), historyNameField = saveNameField();
+  if (historySaveButton) historySaveButton.addEventListener("click", addHistory);
+  if (historyNameField) historyNameField.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && historySaveButton) {
       event.preventDefault();
-      saveButton().click();
+      historySaveButton.click();
     }
   });
   $("clearHist").addEventListener("click", function () {
@@ -261,26 +265,55 @@
       var trackedSections = trackSteps.map(function (step) {
         return document.getElementById(step.getAttribute("data-target"));
       }).filter(function (section) { return !!section; });
-      var observerMargin = Math.floor(window.innerHeight * 0.65);
-      var sectionObserver = new window.IntersectionObserver(function () {
-        var rootBottom = window.innerHeight - observerMargin;
-        var marker = rootBottom / 2;
-        var visible = trackedSections.map(function (section) {
-          var rect = section.getBoundingClientRect();
-          return {target: section, center: rect.top + rect.height / 2, visible: rect.bottom > 0 && rect.top < rootBottom && rect.right > 0 && rect.left < window.innerWidth};
-        }).filter(function (section) { return section.visible; });
-        if (!visible.length) return;
-        visible.sort(function (a, b) {
-          var distance = Math.abs(a.center - marker) - Math.abs(b.center - marker);
-          return distance || trackedSections.indexOf(b.target) - trackedSections.indexOf(a.target);
-        });
-        var activeTarget = visible[0].target.id;
+      var intersectingSections = new Set(), sectionObserver, resizeFrame = 0;
+      function setActiveSection(section) {
         trackSteps.forEach(function (step) {
-          if (step.getAttribute("data-target") === activeTarget) step.classList.add("is-active");
+          if (step.getAttribute("data-target") === section.id) step.classList.add("is-active");
           else step.classList.remove("is-active");
         });
-      }, {rootMargin: "0px 0px -" + observerMargin + "px 0px", threshold: 0});
-      trackedSections.forEach(function (section) { sectionObserver.observe(section); });
+      }
+      function observeSections() {
+        if (sectionObserver) sectionObserver.disconnect();
+        intersectingSections.clear();
+        var activationBand = Math.floor(window.innerHeight * 0.2);
+        var margin = Math.floor((window.innerHeight - activationBand) / 2);
+        var marker = window.innerHeight / 2;
+        sectionObserver = new window.IntersectionObserver(function (entries) {
+          var entered = [];
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              if (!intersectingSections.has(entry.target)) {
+                entered.push({
+                  target: entry.target,
+                  center: entry.boundingClientRect.top + entry.boundingClientRect.height / 2
+                });
+              }
+              intersectingSections.add(entry.target);
+            } else {
+              intersectingSections.delete(entry.target);
+            }
+          });
+          if (!entered.length) return;
+          entered.sort(function (a, b) {
+            var distance = Math.abs(a.center - marker) - Math.abs(b.center - marker);
+            return distance || trackedSections.indexOf(b.target) - trackedSections.indexOf(a.target);
+          });
+          setActiveSection(entered[0].target);
+        }, {
+          rootMargin: "-" + margin + "px 0px -" + margin + "px 0px",
+          threshold: 0
+        });
+        trackedSections.forEach(function (section) { sectionObserver.observe(section); });
+      }
+      function handleTrackerResize() {
+        if (resizeFrame) return;
+        resizeFrame = window.requestAnimationFrame(function () {
+          resizeFrame = 0;
+          observeSections();
+        });
+      }
+      observeSections();
+      window.addEventListener("resize", handleTrackerResize);
     }
   }
   document.querySelectorAll("[data-preset]").forEach(function (b) {

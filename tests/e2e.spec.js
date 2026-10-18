@@ -70,17 +70,36 @@ test("quantity and category selections recalculate every calculator page", async
 });
 
 test("scroll tracker is wired to the sale, costs, and results on every calculator page", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
   for (const path of ["/", "/ebay-fee-calculator-uk.html", "/etsy-fee-calculator-uk.html", "/depop-fee-calculator-uk.html", "/vinted-profit-calculator.html"]) {
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto(path);
     await expect(page.locator(".scroll-tracker")).toBeVisible();
     for (const target of ["sale-step", "costs-step", "results-step"]) {
       await expect(page.locator(`#${target}`)).toHaveCount(1);
       await expect(page.locator(`.track-step[data-target="${target}"]`)).toHaveCount(1);
     }
-    await page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.querySelector('#results-step').getBoundingClientRect().top + window.scrollY - 120)");
-    await expect(page.locator('.track-step[data-target="results-step"]')).toHaveClass(/is-active/);
+    await page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.querySelector('#costs-step').getBoundingClientRect().top + window.scrollY - window.innerHeight / 2)");
+    await expect(page.locator('.track-step[data-target="costs-step"]')).toHaveClass(/is-active/);
+    if (path === "/") {
+      await page.setViewportSize({ width: 1024, height: 650 });
+      await expect(page.locator(".scroll-tracker")).toBeVisible();
+      await expect(page.locator(".track-step.is-active")).toHaveCount(1);
+    }
   }
+});
+
+test("calculator initializes when optional saved-calculation controls are absent", async ({ page }) => {
+  await page.route("**/", async (route) => {
+    const response = await route.fetch();
+    const html = await response.text();
+    await route.fulfill({
+      response,
+      body: html.replace('id="save-calc-name"', 'id="removed-save-calc-name"')
+        .replace('id="save-calc-btn"', 'id="removed-save-calc-btn"')
+    });
+  });
+  await page.goto("/");
+  await expect(page.locator(".platform-result")).toHaveCount(5);
 });
 
 test("shows fee caveats next to the affected platform estimates", async ({ page }) => {
@@ -159,6 +178,9 @@ test("interactive controls show a visible keyboard focus indicator", async ({ pa
   await page.locator("#price").focus();
   await expect(page.locator("#price")).toHaveCSS("outline-style", "solid");
   await expect(page.locator("#price")).toHaveCSS("outline-width", "2px");
+  await expect(page.locator("#price")).toHaveCSS("transform", "none");
+  await page.locator("#save-calc-name").focus();
+  await expect(page.locator("#save-calc-name")).not.toHaveCSS("transform", "none");
 });
 
 test("no critical accessibility problems", async ({ page }) => {
