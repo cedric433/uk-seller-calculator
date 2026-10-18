@@ -24,7 +24,7 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: #09090b;
+  background: var(--bg);
   color: var(--text);
   font: 16px/1.55 var(--font-sans);
 }
@@ -32,8 +32,8 @@ body {
 a { color: var(--accent); }
 
 .hero {
-  background-color: #09090b;
-  background-image: radial-gradient(#27272a 1px, transparent 1px);
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
   background-size: 24px 24px;
   border-bottom: 1px solid var(--line);
 }
@@ -96,7 +96,7 @@ h2 {
   padding: 5px 11px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #111113;
+  background: var(--card);
   color: #d4d4d8;
   font-size: 0.8rem;
   font-weight: 600;
@@ -104,7 +104,7 @@ h2 {
 
 .chip.active {
   border-color: #3f3f46;
-  background: #18181b;
+  background: var(--accent-soft);
   color: #e4e4e7;
 }
 
