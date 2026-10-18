@@ -1,19 +1,30 @@
 (function () {
-  var F = ["price","ship","cost","shipCost","other","cat","target"], C = ["vat","ads","boost"], KEY = "ukspc.v1";
-  var DEF = {price:30, ship:3, cost:8, shipCost:3, other:0.5, cat:11.9, target:5, vat:true, ads:false, boost:false};
+  var F = ["price","ship","cost","shipCost","other","qty","cat","target"], C = ["vat","ads","boost"], KEY = "ukspc.v1";
+  var DEF = {price:30, ship:3, cost:8, shipCost:3, other:0.5, qty:1, cat:11.9, target:5, vat:true, ads:false, boost:false};
   var PRE = {low:{price:6,ship:2.5,cost:1.5,shipCost:2.5,other:0.3}, free:{price:25,ship:0,cost:10,shipCost:6,other:0.5}, high:{price:250,ship:10,cost:150,shipCost:10,other:1}, vatreg:{vat:false}};
-  var $ = function (i) { return document.getElementById(i); };
+  var $ = function (i) { return document.getElementById(i === "cat" ? "ebay-fee-input" : i); };
   var gbp = function (n) { return (n < 0 ? "-" : "") + "£" + Math.abs(n).toFixed(2); };
-  function apply(s) { F.forEach(function (f) { if (s[f] !== undefined) $(f).value = s[f]; }); C.forEach(function (c) { if (s[c] !== undefined) $(c).checked = !!s[c]; }); }
+  function syncCategory() {
+    var rate = $("cat").value;
+    $("ebay-category").value = Array.prototype.some.call($("ebay-category").options, function (option) { return option.value === rate; }) ? rate : "";
+  }
+  function apply(s) { F.forEach(function (f) { if (s[f] !== undefined) $(f).value = s[f]; }); C.forEach(function (c) { if (s[c] !== undefined) $(c).checked = !!s[c]; }); syncCategory(); }
   function save() { try { var s = {}; F.forEach(function (f) { s[f] = $(f).value; }); C.forEach(function (c) { s[c] = $(c).checked; }); localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage unavailable */ } }
   function load() { var s = DEF; try { var r = localStorage.getItem(KEY); if (r) s = Object.assign({}, DEF, JSON.parse(r)); } catch { /* storage unavailable */ } apply(s); }
   function read() {
     var o = {}, w = [], negative = [];
     F.forEach(function (f) {
       var raw = parseFloat($(f).value);
-      if (raw < 0) negative.push(($(f).labels && $(f).labels[0]) ? $(f).labels[0].textContent : f);
-      o[f] = clean(raw, f === "cat" ? 100 : 100000);
-      $(f).setAttribute("aria-invalid", raw < 0 ? "true" : "false");
+      if (f === "qty") {
+        var validQty = Number.isInteger(raw) && raw >= 1;
+        if (!validQty) w.push("Quantity must be a whole number of 1 or more.");
+        o[f] = Number.isFinite(raw) ? Math.max(1, Math.min(Math.floor(raw), 100000)) : 1;
+        $(f).setAttribute("aria-invalid", validQty ? "false" : "true");
+      } else {
+        if (raw < 0) negative.push(($(f).labels && $(f).labels[0]) ? $(f).labels[0].textContent : f);
+        o[f] = clean(raw, f === "cat" ? 100 : 100000);
+        $(f).setAttribute("aria-invalid", raw < 0 ? "true" : "false");
+      }
     });
     C.forEach(function (c) { o[c] = $(c).checked; });
     if (o.price === 0) w.push("Enter an item price above £0 to see results.");
@@ -86,6 +97,25 @@
       details.appendChild(source);
     }
     card.appendChild(details);
+
+    var profitDetails = node("details", "profit-details");
+    var profitSummary = node("summary", "", "Profit breakdown");
+    var breakdown = node("ul", "profit-breakdown");
+    [
+      ["Total Revenue", gbp(x.revenue)],
+      ["Platform Fee", gbp(-x.f.total)],
+      ["Total Item Cost", gbp(-x.itemCost)],
+      ["Shipping & Packaging", gbp(-(x.shippingCost + x.packagingCost))],
+      ["Net Profit", gbp(x.profit)]
+    ].forEach(function (line, index) {
+      var row = node("li", index === 4 ? "net-profit" : "");
+      row.appendChild(node("span", "", line[0]));
+      row.appendChild(node("b", "", line[1]));
+      breakdown.appendChild(row);
+    });
+    profitDetails.appendChild(profitSummary);
+    profitDetails.appendChild(breakdown);
+    card.appendChild(profitDetails);
     return card;
   }
   function render() {
@@ -99,7 +129,11 @@
       summary.appendChild(node("p", "", "Enter an item price above £0 to see estimated profit, fees, margin, and target price."));
       return;
     }
-    var res = CONFIG.platforms.map(function (p) { var f = fees(p.k, o.price, o); return {p: p, f: f, profit: f.base - f.total - o.cost - o.shipCost - o.other, need: need(p.k, o)}; });
+    var res = CONFIG.platforms.map(function (p) {
+      var f = fees(p.k, o.price, o), itemCost = o.cost * o.qty;
+      return {p: p, f: f, revenue: f.base, itemCost: itemCost, shippingCost: o.shipCost, packagingCost: o.other,
+        profit: f.base - f.total - itemCost - o.shipCost - o.other, need: need(p.k, o)};
+    });
     var best = Math.max.apply(null, res.map(function (x) { return x.profit; })), worst = Math.min.apply(null, res.map(function (x) { return x.profit; }));
     var top = res.filter(function (x) { return x.profit === best; }).map(function (x) { return x.p.name; });
     var sorted = res.slice().sort(function (a, b) { return b.profit - a.profit; });
@@ -137,14 +171,14 @@
       var row = document.createElement("div"), txt = document.createElement("div");
       row.className = "hrow";
       var d = new Date(e.t).toLocaleString("en-GB", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"});
-      txt.textContent = (e.note ? e.note + " · " : "") + gbp(clean(e.inp.price)) + " item · " +
+      txt.textContent = (e.note ? e.note + " · " : "") + (e.inp.qty || 1) + " × " + gbp(clean(e.inp.price)) + " item · " +
         gbp(clean(e.inp.ship)) + " postage charged · " + gbp(clean(e.inp.cost)) + " item cost · " +
         gbp(clean(e.inp.shipCost)) + " postage cost · eBay fee " + clean(e.inp.cat) + "% · VAT " +
         (e.inp.vat ? "on" : "off") + " · Etsy ads " + (e.inp.ads ? "on" : "off") +
         " · Depop boost " + (e.inp.boost ? "on" : "off") + " → " + e.best + " " + gbp(e.profit) + " (" + d + ")";
       row.appendChild(txt);
       var label = (e.note || gbp(clean(e.inp.price)) + " item");
-      var load = mk("Load", function () { apply(e.inp); save(); render(); $("resultStatus").textContent = label + " loaded."; });
+      var load = mk("Load", function () { apply(Object.assign({qty: 1}, e.inp)); save(); render(); $("resultStatus").textContent = label + " loaded."; });
       load.setAttribute("aria-label", "Load " + label);
       row.appendChild(load);
       var remove = mk("Delete", function () { var h = hload(); h.splice(i, 1); hsave(h); renderHistory(); $("resultStatus").textContent = label + " removed from saved calculations."; });
@@ -160,13 +194,17 @@
     }
   });
   document.querySelectorAll(".inputs input").forEach(function (e) {
-    e.addEventListener("input", function () { clearPresetState(); save(); render(); });
+    e.addEventListener("input", function () { if (e.id === "ebay-fee-input") syncCategory(); clearPresetState(); save(); render(); });
     e.addEventListener("change", function () { clearPresetState(); save(); render(); $("resultStatus").textContent = "Platform comparison updated."; });
+  });
+  $("ebay-category").addEventListener("change", function () {
+    if (this.value !== "") $("cat").value = this.value;
+    save(); render(); $("resultStatus").textContent = "eBay category fee updated.";
   });
   function clearPresetState() {
     document.querySelectorAll("[data-preset]").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
   }
-  if ("IntersectionObserver" in window) {
+  if ("IntersectionObserver" in window && $("mobileJump") && $("results")) {
     var mobileJump = $("mobileJump");
     var resultsObserver = new window.IntersectionObserver(function (entries) {
       var editing = entries[0].isIntersecting;

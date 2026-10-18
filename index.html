@@ -40,9 +40,17 @@
 <div><label for="cost">Item cost</label><div class="in"><span>£</span><input id="cost" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 <div><label for="shipCost">Postage you pay</label><div class="in"><span>£</span><input id="shipCost" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 <div><label for="other">Packaging / other</label><div class="in"><span>£</span><input id="other" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
+<div><label for="qty">Quantity</label><div class="in"><input id="qty" type="number" inputmode="numeric" min="1" step="1" value="1"></div></div>
 </div></fieldset>
 <fieldset><legend>Fees and goal</legend><div class="g2">
-<div><label for="cat">eBay business fee</label><div class="in"><input id="cat" type="number" inputmode="decimal" min="0" max="100" step="0.1"><span>%</span></div><small class="field-hint">Use the rate for your item category.</small></div>
+<div class="category-field"><label for="ebay-category">eBay Category</label><select id="ebay-category" class="select">
+<option value="" selected>Custom rate</option>
+<option value="11.9">Standard (11.9%)</option>
+<option value="6.9">Tech &amp; Electronics (6.9%)</option>
+<option value="8">Trainers / Sneakers (8%)</option>
+<option value="12.9">Jewellery &amp; Watches (12.9%)</option>
+</select></div>
+<div><label for="ebay-fee-input">eBay business fee</label><div class="in"><input id="ebay-fee-input" type="number" inputmode="decimal" min="0" max="100" step="0.1"><span>%</span></div><small class="field-hint">Use the rate for your item category.</small></div>
 <div><label for="target">Profit you want</label><div class="in"><span>£</span><input id="target" type="number" inputmode="decimal" min="0" step="0.5"></div></div>
 </div></fieldset>
 <fieldset><legend>Options</legend>
