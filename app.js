@@ -257,64 +257,44 @@
     }, {threshold: 0});
     resultsObserver.observe($("results"));
   }
-  var tracker = document.querySelector(".scroll-tracker");
-  if (tracker) {
-    var trackSteps = Array.prototype.slice.call(tracker.querySelectorAll(".track-step"));
-    if (trackSteps.length) trackSteps[0].classList.add("is-active");
-    if ("IntersectionObserver" in window) {
-      var trackedSections = trackSteps.map(function (step) {
-        return document.getElementById(step.getAttribute("data-target"));
-      }).filter(function (section) { return !!section; });
-      var intersectingSections = new Set(), sectionObserver, resizeFrame = 0;
-      function setActiveSection(section) {
-        trackSteps.forEach(function (step) {
-          if (step.getAttribute("data-target") === section.id) step.classList.add("is-active");
-          else step.classList.remove("is-active");
-        });
-      }
-      function observeSections() {
-        if (sectionObserver) sectionObserver.disconnect();
-        intersectingSections.clear();
-        var activationBand = Math.floor(window.innerHeight * 0.2);
-        var margin = Math.floor((window.innerHeight - activationBand) / 2);
-        var marker = window.innerHeight / 2;
-        sectionObserver = new window.IntersectionObserver(function (entries) {
-          var entered = [];
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              if (!intersectingSections.has(entry.target)) {
-                entered.push({
-                  target: entry.target,
-                  center: entry.boundingClientRect.top + entry.boundingClientRect.height / 2
-                });
-              }
-              intersectingSections.add(entry.target);
-            } else {
-              intersectingSections.delete(entry.target);
-            }
+  if ("IntersectionObserver" in window && document.querySelector(".scroll-tracker")) {
+    var trackerObserver;
+    var trackSteps = document.querySelectorAll(".track-step");
+    function observeTrackerSections() {
+      if (trackerObserver) trackerObserver.disconnect();
+      // Percentage root margins use the viewport width, so calculate vertical bands from its height.
+      var viewportHeight = window.innerHeight;
+      trackerObserver = new window.IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          trackSteps.forEach(function (step) {
+            step.classList.remove("active");
           });
-          if (!entered.length) return;
-          entered.sort(function (a, b) {
-            var distance = Math.abs(a.center - marker) - Math.abs(b.center - marker);
-            return distance || trackedSections.indexOf(b.target) - trackedSections.indexOf(a.target);
+          trackSteps.forEach(function (step) {
+            if (step.getAttribute("data-target") === entry.target.id) step.classList.add("active");
           });
-          setActiveSection(entered[0].target);
-        }, {
-          rootMargin: "-" + margin + "px 0px -" + margin + "px 0px",
-          threshold: 0
         });
-        trackedSections.forEach(function (section) { sectionObserver.observe(section); });
-      }
-      function handleTrackerResize() {
-        if (resizeFrame) return;
-        resizeFrame = window.requestAnimationFrame(function () {
-          resizeFrame = 0;
-          observeSections();
-        });
-      }
-      observeSections();
-      window.addEventListener("resize", handleTrackerResize);
+      }, {
+        root: null,
+        rootMargin: "-" + Math.round(viewportHeight * 0.2) + "px 0px -" + Math.round(viewportHeight * 0.6) + "px 0px",
+        threshold: 0
+      });
+
+      ["sale-step", "costs-step", "results-step"].forEach(function (id) {
+        var section = document.getElementById(id);
+        if (section) trackerObserver.observe(section);
+      });
     }
+
+    observeTrackerSections();
+    var trackerResizeFrame = null;
+    window.addEventListener("resize", function () {
+      if (trackerResizeFrame !== null) return;
+      trackerResizeFrame = window.requestAnimationFrame(function () {
+        trackerResizeFrame = null;
+        observeTrackerSections();
+      });
+    });
   }
   document.querySelectorAll("[data-preset]").forEach(function (b) {
     b.setAttribute("aria-pressed", "false");

@@ -74,17 +74,19 @@ test("scroll tracker is wired to the sale, costs, and results on every calculato
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto(path);
     await expect(page.locator(".scroll-tracker")).toBeVisible();
+    await expect(page.locator(".scroll-tracker > .track-line")).toHaveCount(1);
+    await expect(page.locator(".track-step.active")).toHaveCount(1);
+    await expect(page.locator('.track-step[data-target="sale-step"]')).toHaveClass(/active/);
     for (const target of ["sale-step", "costs-step", "results-step"]) {
       await expect(page.locator(`#${target}`)).toHaveCount(1);
       await expect(page.locator(`.track-step[data-target="${target}"]`)).toHaveCount(1);
     }
-    await expect(page.locator('.track-step[data-target="sale-step"]')).toHaveClass(/is-active/);
-    await page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; var costs = document.querySelector('#costs-step'); window.scrollTo(0, costs.getBoundingClientRect().top + window.scrollY + costs.offsetHeight / 2 - window.innerHeight / 2)");
-    await expect(page.locator('.track-step[data-target="costs-step"]')).toHaveClass(/is-active/);
+    await page.evaluate("var section = document.querySelector('#costs-step'); var scroller = document.querySelector('.inputs'); scroller.scrollTop = scroller.scrollHeight; window.scrollBy(0, section.getBoundingClientRect().top + section.offsetHeight / 2 - window.innerHeight * 0.3)");
+    await expect(page.locator('.track-step[data-target="costs-step"]')).toHaveClass(/active/);
     if (path === "/") {
       await page.setViewportSize({ width: 1024, height: 650 });
       await expect(page.locator(".scroll-tracker")).toBeVisible();
-      await expect(page.locator(".track-step.is-active")).toHaveCount(1);
+      await expect(page.locator(".track-step.active")).toHaveCount(1);
     }
   }
 });
