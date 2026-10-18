@@ -115,8 +115,8 @@ h2 {
 
 .chip.active,
 .chips span:last-child {
-  border-color: rgba(59, 120, 166, 0.4);
-  background: rgba(59, 120, 166, 0.05);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
   color: #e2e8f0;
 }
 
