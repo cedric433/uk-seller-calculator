@@ -60,10 +60,10 @@ h1 {
   margin: 0;
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-size: clamp(1.75rem, 4vw, 1.875rem);
   font-weight: 750;
   line-height: 1.02;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.035em;
   text-wrap: balance;
 }
 
@@ -809,7 +809,6 @@ summary {
 
 @media (max-width: 520px) {
   .hero > div { gap: 16px; padding: 38px 20px; }
-  .hero-title { font-size: clamp(2.35rem, 11vw, 3.5rem); }
   .layout { padding-right: 12px; padding-left: 12px; }
   .panel { padding: 18px 16px; }
   .summary { padding: 17px 16px; }
