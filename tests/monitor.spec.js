@@ -4,7 +4,7 @@ async function readSource(page, platform, url) {
   const response = await page.goto(url);
   expect(response && response.ok(), `${platform} source ${url} could not be checked (HTTP ${response ? response.status() : "no response"}). Review the source manually; an inaccessible page is not evidence that rates changed.`).toBeTruthy();
   const text = await page.locator("body").innerText();
-  expect(text, `${platform} source ${url} returned an empty page. Review the source manually; an empty response is not evidence that rates changed.`).not.toBe("");
+  expect(text.trim(), `${platform} source ${url} returned an empty page. Review the source manually; an empty response is not evidence that rates changed.`).not.toBe("");
   expect(text, `${platform} source ${url} showed an anti-bot or verification page. Review the source manually; blocked access is not evidence that rates changed.`).not.toMatch(/please verify yourself|captcha|robot check/i);
   return text;
 }
