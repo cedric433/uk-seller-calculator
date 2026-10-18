@@ -257,45 +257,6 @@
     }, {threshold: 0});
     resultsObserver.observe($("results"));
   }
-  if ("IntersectionObserver" in window && document.querySelector(".scroll-tracker")) {
-    var trackerObserver;
-    var trackSteps = document.querySelectorAll(".track-step");
-    function observeTrackerSections() {
-      if (trackerObserver) trackerObserver.disconnect();
-      // Percentage root margins use the viewport width, so calculate vertical bands from its height.
-      var viewportHeight = window.innerHeight;
-      trackerObserver = new window.IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          trackSteps.forEach(function (step) {
-            step.classList.remove("active");
-          });
-          trackSteps.forEach(function (step) {
-            if (step.getAttribute("data-target") === entry.target.id) step.classList.add("active");
-          });
-        });
-      }, {
-        root: null,
-        rootMargin: "-" + Math.round(viewportHeight * 0.2) + "px 0px -" + Math.round(viewportHeight * 0.6) + "px 0px",
-        threshold: 0
-      });
-
-      ["sale-step", "costs-step", "results-step"].forEach(function (id) {
-        var section = document.getElementById(id);
-        if (section) trackerObserver.observe(section);
-      });
-    }
-
-    observeTrackerSections();
-    var trackerResizeFrame = null;
-    window.addEventListener("resize", function () {
-      if (trackerResizeFrame !== null) return;
-      trackerResizeFrame = window.requestAnimationFrame(function () {
-        trackerResizeFrame = null;
-        observeTrackerSections();
-      });
-    });
-  }
   document.querySelectorAll("[data-preset]").forEach(function (b) {
     b.setAttribute("aria-pressed", "false");
     b.addEventListener("click", function () {
