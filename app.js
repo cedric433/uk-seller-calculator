@@ -172,9 +172,7 @@
       e.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
           event.preventDefault();
-          save();
-          render();
-          $("resultStatus").textContent = "Platform comparison updated.";
+          e.blur();
         }
       });
     }

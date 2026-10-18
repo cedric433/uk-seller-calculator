@@ -108,11 +108,14 @@ test("Enter saves a named calculation", async ({ page }) => {
 });
 
 test("Enter recalculates a numeric input without submitting the page", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
   await page.fill("#price", "40");
   await page.locator("#price").press("Enter");
   await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("£31.50");
   await expect(page.locator("#resultStatus")).toContainText("Platform comparison updated");
+  await expect(page.locator("#price")).not.toBeFocused();
+  await expect(page.locator("#mobileJump")).toBeVisible();
   await expect(page).toHaveURL("/");
 });
 
