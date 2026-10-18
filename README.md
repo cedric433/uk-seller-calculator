@@ -1,6 +1,6 @@
 # UK Seller Profit Calculator
 
-Free tool that shows what UK sellers keep after fees on eBay, Etsy, Depop and Vinted. Live site: https://cedric433.github.io/uk-seller-calculator/
+Shows what UK sellers keep after fees on eBay, Etsy, Depop and Vinted. Live site: https://cedric433.github.io/uk-seller-calculator/
 
 ## What it does
 Enter your item price, postage, costs and target profit. It shows fees, profit, margin and the price you would need to charge on each platform, plus a source panel for each fee model.
@@ -17,7 +17,7 @@ Rates live in `fees.js`. Percentage fees apply to item price plus postage charge
 `index.html` page · `styles.css` look · `app.js` interface · `fees.js` rates and maths · `tests.html` browser checks (open it and look for green PASS lines)
 
 ## Updating fees
-Edit the numbers in `fees.js`, change `CONFIG.updated`, and check `tests.html` still passes.
+Edit rates in `fees.js`. The displayed update date follows that file's deployed `Last-Modified` timestamp automatically. Check `tests.html` still passes.
 
 ## Automated checks
 Every pull request and push to main runs (see `.github/workflows/ci.yml`):
