@@ -422,7 +422,13 @@ summary:focus-visible {
 
 .mobile-jump { display: none; }
 
-.results { min-width: 0; }
+.results {
+  min-width: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-right: 24px;
+  padding-left: 24px;
+}
 
 .summary {
   margin: 0 0 22px;
@@ -466,17 +472,16 @@ summary:focus-visible {
 }
 
 .platform-result {
-  padding: 17px 0;
+  padding: 28px 32px;
   border-bottom: 1px solid var(--line);
+  border-radius: 16px;
 }
 
 .platform-result.best {
   position: relative;
   overflow: hidden;
   margin: 8px -12px;
-  padding: 17px 12px;
   border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
-  border-radius: 12px;
   background: var(--accent-soft);
 }
 
@@ -880,4 +885,15 @@ h3, h4, h5, h6, .hook-title {
 
 input, button, select, textarea {
   font-family: var(--font-sans);
+}
+
+@media (max-width: 600px) {
+  .platform-result {
+    padding: 20px 16px;
+  }
+
+  .results {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
 }
