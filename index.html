@@ -5,109 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>UK Seller Profit Calculator: eBay, Etsy, Depop & Vinted</title>
 <meta name="description" content="Compare what you keep after fees on eBay UK, Etsy UK, Depop and Vinted. Free, instant, no sign-up.">
-<style>
-:root{--bg:#f6f7f9;--card:#fff;--text:#16181d;--muted:#5d6572;--line:#e1e4ea;--accent:#0f6b5c;--good:#0f7a3d;--bad:#b3261e;--best:#e8f5ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111316;--card:#1a1d22;--text:#eceef2;--muted:#9aa3b0;--line:#2b3038;--accent:#4cc2a8;--good:#5fd28b;--bad:#ff8a80;--best:#1b2a24;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#111316;--card:#1a1d22;--text:#eceef2;--muted:#9aa3b0;--line:#2b3038;--accent:#4cc2a8;--good:#5fd28b;--bad:#ff8a80;--best:#1b2a24;color-scheme:dark}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-main{max-width:980px;margin:0 auto;padding:20px 16px 40px}
-h1{font-size:1.6rem;margin:.2em 0 .1em}p.sub{color:var(--muted);margin:0 0 18px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:4px}
-input[type=number]{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
-.chk{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;color:var(--text);margin-top:12px}
-.chk input{margin-top:4px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-.card.best{background:var(--best);border-color:var(--accent)}
-.card h3{margin:0 0 2px;font-size:1rem}.badge{font-size:.72rem;color:var(--accent);font-weight:700}
-.profit{font-size:1.7rem;font-weight:700;margin:6px 0 0}.profit.neg{color:var(--bad)}.profit.pos{color:var(--good)}
-.margin{color:var(--muted);font-size:.85rem;margin-bottom:8px}
-ul{list-style:none;margin:0;padding:8px 0 0;border-top:1px solid var(--line);font-size:.85rem}
-li{display:flex;justify-content:space-between;gap:8px;padding:2px 0}li span:first-child{color:var(--muted)}
-.need{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:.85rem}
-.need b{color:var(--accent)}
-.notes{font-size:.82rem;color:var(--muted)}.notes li{display:list-item;list-style:disc;margin-left:18px;padding:2px 0}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <main>
 <h1>UK Seller Profit Calculator</h1>
 <p class="sub">See what you actually keep on eBay, Etsy, Depop and Vinted after fees, postage and costs.</p>
-
-<div class="panel">
+<form class="panel" onsubmit="return false" aria-label="Sale details">
+<p style="margin:0 0 6px"><b>Quick examples:</b></p>
+<button type="button" data-preset="low">Low-value item</button><button type="button" data-preset="free">Free postage</button><button type="button" data-preset="high">High-value item</button><button type="button" data-preset="vatreg">VAT-registered seller</button><button type="button" id="reset">Reset</button>
+<fieldset><legend>Sale details (£)</legend>
 <div class="grid">
-<div><label for="price">Item price (£)</label><input id="price" type="number" inputmode="decimal" min="0" step="0.01" value="30"></div>
-<div><label for="ship">Postage you charge buyer (£)</label><input id="ship" type="number" inputmode="decimal" min="0" step="0.01" value="3"></div>
-<div><label for="cost">What the item cost you (£)</label><input id="cost" type="number" inputmode="decimal" min="0" step="0.01" value="8"></div>
-<div><label for="shipCost">Postage you pay (£)</label><input id="shipCost" type="number" inputmode="decimal" min="0" step="0.01" value="3"></div>
-<div><label for="other">Packaging / other (£)</label><input id="other" type="number" inputmode="decimal" min="0" step="0.01" value="0.50"></div>
-<div><label for="cat">eBay business category fee (%)</label><input id="cat" type="number" inputmode="decimal" min="0" step="0.1" value="11.9"></div>
-<div><label for="target">Profit you want per sale (£)</label><input id="target" type="number" inputmode="decimal" min="0" step="0.5" value="5"></div>
-</div>
-<label class="chk"><input id="vat" type="checkbox" checked><span>Add 20% VAT to eBay business and Etsy fees (tick if you’re <b>not</b> VAT-registered)</span></label>
+<div><label for="price">Item price</label><input id="price" type="number" inputmode="decimal" min="0" step="0.01"></div>
+<div><label for="ship">Postage you charge buyer</label><input id="ship" type="number" inputmode="decimal" min="0" step="0.01"></div>
+<div><label for="cost">What the item cost you</label><input id="cost" type="number" inputmode="decimal" min="0" step="0.01"></div>
+<div><label for="shipCost">Postage you pay</label><input id="shipCost" type="number" inputmode="decimal" min="0" step="0.01"></div>
+<div><label for="other">Packaging / other</label><input id="other" type="number" inputmode="decimal" min="0" step="0.01"></div>
+<div><label for="cat">eBay business category fee (%)</label><input id="cat" type="number" inputmode="decimal" min="0" max="100" step="0.1"></div>
+<div><label for="target">Profit you want per sale</label><input id="target" type="number" inputmode="decimal" min="0" step="0.5"></div>
+</div></fieldset>
+<fieldset><legend class="sr" style="position:absolute;left:-9999px">Options</legend>
+<label class="chk"><input id="vat" type="checkbox"><span>Add 20% VAT to eBay business and Etsy fees (tick if you’re <b>not</b> VAT-registered)</span></label>
 <label class="chk"><input id="ads" type="checkbox"><span>Etsy sale came via Offsite Ads (15% fee)</span></label>
 <label class="chk"><input id="boost" type="checkbox"><span>Depop sale used a Boosted Listing (12% fee)</span></label>
+</fieldset>
+<p id="warn" role="alert"></p>
+</form>
+
+<div aria-live="polite">
+<p id="summary"></p>
+<div class="panel wrap"><table id="table"></table></div>
+<div id="cards" class="cards"></div>
 </div>
 
-<div id="cards" class="cards"></div>
-
 <div class="panel notes" style="margin-top:16px">
-<b>Rates used (checked 18 Oct 2026 from published sources, always confirm on each site before pricing):</b>
+<h2>Sources and assumptions</h2>
+<div id="sources"></div>
 <ul>
-<li>eBay UK private sellers: no selling fees. Business: category % of item + postage, plus £0.30 per order (£0.40 over £10) and a 0.35% regulatory fee. Categories range from about 6.9% to 14.9%.</li>
-<li>Etsy UK: £0.15 listing, 6.5% transaction, 4% + £0.20 payment processing, 0.48% regulatory fee (since 22 June 2026), optional 15% Offsite Ads.</li>
-<li>Depop UK: 0% selling fee, 2.9% + £0.30 payment processing, optional 12% boost fee. Sources conflict on this, so verify.</li>
-<li>Vinted: sellers pay no fees; buyers pay the protection fee.</li>
-<li>Percentage fees are applied to item price plus postage charged. Estimates only, not tax or financial advice.</li>
+<li>Percentage fees apply to item price plus postage charged. Margin = profit ÷ (item price + postage charged). Money is shown to the nearest penny, and target prices are rounded up to the next penny.</li>
+<li>Highest profit only compares profit. It ignores demand, selling speed and whether you’re allowed to use that account type (eBay’s private rate is for casual selling, not trading).</li>
+<li>Estimates only. Not tax or financial advice. Your last-used values are saved in your browser only.</li>
 </ul>
 </div>
 </main>
-<script>
-var $=function(id){return document.getElementById(id)};
-function num(id){var v=parseFloat($(id).value);return isFinite(v)&&v>=0?v:0}
-function gbp(n){return (n<0?"-":"")+"£"+Math.abs(n).toFixed(2)}
-var PLAT=[
-{k:"ebayp",n:"eBay UK (private)",sub:"Casual sellers"},
-{k:"ebayb",n:"eBay UK (business)",sub:"Trader account"},
-{k:"etsy",n:"Etsy UK",sub:"Handmade, vintage, supplies"},
-{k:"depop",n:"Depop UK",sub:"Fashion resale"},
-{k:"vinted",n:"Vinted UK",sub:"Zero seller fees"}
-];
-function fees(k,price,o){
-var base=price+o.ship,L=[],sum=0;
-function add(l,v){L.push([l,v]);sum+=v}
-if(k==="ebayb"){add("Final value fee ("+o.cat+"%)",base*o.cat/100);add("Per-order fee",base>10?0.40:0.30);add("Regulatory fee (0.35%)",base*0.0035)}
-else if(k==="etsy"){add("Listing fee",0.15);add("Transaction fee (6.5%)",base*0.065);add("Processing (4% + £0.20)",base*0.04+0.20);add("Regulatory fee (0.48%)",base*0.0048);if(o.ads)add("Offsite Ads (15%)",base*0.15)}
-else if(k==="depop"){add("Processing (2.9% + £0.30)",base*0.029+0.30);if(o.boost)add("Boost fee (12%)",price*0.12)}
-if(o.vat&&(k==="ebayb"||k==="etsy"))add("VAT on fees (20%)",sum*0.2);
-if(sum===0)L.push(["Platform fees",0]);
-return {L:L,total:sum,base:base}
-}
-function profit(k,price,o){var f=fees(k,price,o);return f.base-f.total-o.cost-o.shipCost-o.other}
-function need(k,o){
-var t=o.target,lo=0,hi=5000;
-if(profit(k,hi,o)<t)return null;
-for(var i=0;i<60;i++){var m=(lo+hi)/2;if(profit(k,m,o)<t)lo=m;else hi=m}
-return hi
-}
-function render(){
-var o={ship:num("ship"),cost:num("cost"),shipCost:num("shipCost"),other:num("other"),cat:num("cat"),target:num("target"),vat:$("vat").checked,ads:$("ads").checked,boost:$("boost").checked};
-var price=num("price"),res=PLAT.map(function(p){var f=fees(p.k,price,o);return {p:p,f:f,profit:f.base-f.total-o.cost-o.shipCost-o.other,need:need(p.k,o)}});
-var best=Math.max.apply(null,res.map(function(r){return r.profit}));
-$("cards").innerHTML=res.map(function(r){
-var pct=r.f.base>0?(r.profit/r.f.base*100):0;
-var isBest=r.profit===best;
-return '<div class="card'+(isBest?' best':'')+'"><h3>'+r.p.n+'</h3><div class="badge">'+(isBest?'BEST FOR YOU · ':'')+r.p.sub+'</div>'+
-'<div class="profit '+(r.profit<0?'neg':'pos')+'">'+gbp(r.profit)+'</div><div class="margin">profit · '+pct.toFixed(1)+'% of sale total</div>'+
-'<ul>'+r.f.L.map(function(x){return '<li><span>'+x[0]+'</span><span>'+gbp(x[1])+'</span></li>'}).join('')+'<li><span><b>Total fees</b></span><span><b>'+gbp(r.f.total)+'</b></span></li></ul>'+
-'<div class="need">Price to make '+gbp(o.target)+' profit: <b>'+(r.need===null?'n/a':gbp(r.need))+'</b></div></div>'
-}).join('')
-}
-document.querySelectorAll("input").forEach(function(e){e.addEventListener("input",render);e.addEventListener("change",render)});
-render();
-</script>
+<script src="fees.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

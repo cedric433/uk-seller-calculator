@@ -1,0 +1,16 @@
+<!DOCTYPE html><meta charset="utf-8"><title>Calculator tests</title>
+<body style="font:16px system-ui;padding:20px"><h1>Calculator tests</h1><ul id="out"></ul>
+<script src="fees.js"></script>
+<script>
+var o={ship:3,cost:0,shipCost:0,other:0,cat:11.9,target:5,vat:false,ads:false,boost:false};
+function t(n,ok){var li=document.createElement("li");li.textContent=(ok?"PASS: ":"FAIL: ")+n;li.style.color=ok?"green":"red";document.getElementById("out").appendChild(li)}
+function near(a,b){return Math.abs(a-b)<0.01}
+t("eBay business £40 + £3 postage fees ≈ £5.67 (ex VAT)",near(fees("ebayb",40,o).total,5.67));
+t("VAT adds 20% to eBay business fees",near(fees("ebayb",40,Object.assign({},o,{vat:true})).total,5.67*1.2));
+t("Vinted has no fees",fees("vinted",40,o).total===0);
+t("Private eBay has no fees",fees("ebayp",40,o).total===0);
+t("Offsite Ads add 15% of order total",near(fees("etsy",40,Object.assign({},o,{ads:true})).total-fees("etsy",40,o).total,6.45));
+t("Zero postage and very low price still calculate",isFinite(profit("etsy",0.5,Object.assign({},o,{ship:0}))));
+t("Negative and blank input clean to 0",clean(-5)===0&&clean("")===0);
+var n=need("etsy",o);t("Target price delivers at least the target profit",profit("etsy",n,o)>=o.target-0.005);
+</script></body>
