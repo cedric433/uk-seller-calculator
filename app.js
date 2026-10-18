@@ -69,5 +69,6 @@
   document.querySelectorAll("input").forEach(function (e) { e.addEventListener("input", function () { save(); render(); }); e.addEventListener("change", function () { save(); render(); }); });
   document.querySelectorAll("[data-preset]").forEach(function (b) { b.addEventListener("click", function () { apply(PRE[b.getAttribute("data-preset")]); save(); render(); }); });
   $("reset").addEventListener("click", function () { apply(DEF); try { localStorage.removeItem(KEY); } catch (e) {} render(); });
+  $("upd").textContent = "Rates updated " + CONFIG.updated;
   load(); sources(); render(); renderHistory();
 })();
