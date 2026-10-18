@@ -18,7 +18,13 @@
 </div></header>
 <main class="layout">
 <section class="panel inputs" aria-label="Sale details">
-<div class="presets"><button type="button" data-preset="low">Low-value</button><button type="button" data-preset="free">Free postage</button><button type="button" data-preset="high">High-value</button><button type="button" data-preset="vatreg">VAT-registered</button><button type="button" id="reset">Reset</button></div>
+<div class="preset-grid" role="group" aria-label="Example scenarios">
+<div><button type="button" data-preset="low" aria-describedby="presetLow">Low-value</button><small id="presetLow">£6 item · £2.50 postage</small></div>
+<div><button type="button" data-preset="free" aria-describedby="presetFree">Free postage</button><small id="presetFree">£25 item · £0 charged</small></div>
+<div><button type="button" data-preset="high" aria-describedby="presetHigh">High-value</button><small id="presetHigh">£250 item · £10 postage</small></div>
+<div><button type="button" data-preset="vatreg" aria-describedby="presetVat">VAT-registered</button><small id="presetVat">Turns off VAT on fees</small></div>
+</div>
+<button type="button" id="reset" class="reset-button">Reset example values</button>
 <fieldset><legend>The sale</legend><div class="g2">
 <div><label for="price">Item price</label><div class="in"><span>£</span><input id="price" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 <div><label for="ship">Postage you charge</label><div class="in"><span>£</span><input id="ship" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
@@ -29,21 +35,24 @@
 <div><label for="other">Packaging / other</label><div class="in"><span>£</span><input id="other" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 </div></fieldset>
 <fieldset><legend>Fees and goal</legend><div class="g2">
-<div><label for="cat">eBay business fee</label><div class="in"><input id="cat" type="number" inputmode="decimal" min="0" max="100" step="0.1"><span>%</span></div></div>
+<div><label for="cat">eBay business fee</label><div class="in"><input id="cat" type="number" inputmode="decimal" min="0" max="100" step="0.1"><span>%</span></div><small class="field-hint">Use the rate for your item category.</small></div>
 <div><label for="target">Profit you want</label><div class="in"><span>£</span><input id="target" type="number" inputmode="decimal" min="0" step="0.5"></div></div>
 </div></fieldset>
 <fieldset><legend>Options</legend>
-<label class="tg"><span>Add 20% VAT to eBay business and Etsy fees (on if you’re <b>not</b> VAT-registered)</span><input id="vat" type="checkbox"></label>
-<label class="tg"><span>Etsy sale came via Offsite Ads (15%)</span><input id="ads" type="checkbox"></label>
-<label class="tg"><span>Depop sale used a Boosted Listing (12%)</span><input id="boost" type="checkbox"></label>
+<label class="tg"><span><b>VAT on seller fees</b><small>Turn on if you’re not VAT-registered. Adds 20% to eBay business and Etsy fees.</small></span><input id="vat" type="checkbox"></label>
+<label class="tg"><span><b>Etsy Offsite Ads</b><small>Turn on if this order came through an Offsite Ad (15% fee).</small></span><input id="ads" type="checkbox"></label>
+<label class="tg"><span><b>Depop Boosted Listing</b><small>Turn on if the order incurred a Boosted Listing fee (12%).</small></span><input id="boost" type="checkbox"></label>
 </fieldset>
 <p id="warn" role="alert"></p>
+<a class="jump-link" href="#platformResults">Compare platform results <span aria-hidden="true">↓</span></a>
 </section>
+<a id="mobileJump" class="mobile-jump" href="#platformResults" aria-label="Compare platform results">Compare platforms ↓</a>
 
-<section aria-live="polite" aria-label="Results">
-<p id="summary"></p>
-<div class="panel tablebox"><table id="table"></table></div>
-<div id="cards" class="cards"></div>
+<section class="results" id="results" aria-label="Platform comparison">
+<div id="summary" class="summary"></div>
+<div class="results-heading"><h2 id="platformResults">Compare platforms</h2><a class="text-link" href="#price">Edit sale details ↑</a></div>
+<div id="platformCards" class="platform-results"></div>
+<p id="resultStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 </section>
 
 <div class="panel wide">
@@ -58,7 +67,7 @@
 <div id="sources"></div>
 <ul>
 <li>Percentage fees apply to item price plus postage charged. Margin = profit ÷ (item price + postage charged). Money is shown to the nearest penny, and target prices are rounded up to the next penny.</li>
-<li>Highest profit only compares profit. It ignores demand, selling speed and whether you’re allowed to use that account type (eBay’s private rate is for casual selling, not trading).</li>
+<li>The highest-profit result compares estimated profit only. It does not account for demand, selling speed, or whether you’re eligible for an account type.</li>
 <li>Estimates only. Not tax or financial advice. Your last-used values and up to 20 saved calculations are stored in your browser only.</li>
 </ul>
 </div>

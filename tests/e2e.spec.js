@@ -9,13 +9,48 @@ test("built-in calculator checks all pass", async ({ page }) => {
 
 test("shows all five platforms and a winner", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#table tbody tr")).toHaveCount(5);
-  await expect(page.locator("#summary")).toContainText("Highest profit");
+  await expect(page.locator(".platform-result")).toHaveCount(5);
+  await expect(page.locator("#summary")).toContainText("Highest estimated profit");
+  await expect(page.locator("#table")).toHaveCount(0);
 });
 
 test("default numbers give the right Vinted profit", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#table tbody tr", { hasText: "Vinted UK" })).toContainText("£21.50");
+  await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("£21.50");
+});
+
+test("shows fee caveats next to the affected platform estimates", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".platform-result", { hasText: "Depop UK" })).toContainText("assumes a 0% UK selling fee");
+  await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("Buyer protection fees are not included");
+  await expect(page.locator(".platform-result", { hasText: "eBay UK (private)" })).toContainText("casual selling");
+});
+
+test("preset feedback explains the changed scenario", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "High-value" }).click();
+  await expect(page.locator("#resultStatus")).toContainText("High-value example applied");
+  await expect(page.getByRole("button", { name: "High-value" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#price")).toHaveValue("250");
+});
+
+test("mobile comparison fits the viewport and keeps fee details expandable", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await expect(page.locator(".platform-result")).toHaveCount(5);
+  await expect(page.locator(".fee-details").first()).toBeVisible();
+  const contentWidth = await page.locator("html").evaluate((html) => html.scrollWidth);
+  expect(contentWidth).toBeLessThanOrEqual(page.viewportSize().width);
+  const mobileJump = page.locator("#mobileJump");
+  await expect(mobileJump).toHaveText("Compare platforms ↓");
+  await page.locator("#results").scrollIntoViewIfNeeded();
+  await expect(mobileJump).toHaveText("Edit sale details ↑");
+  await mobileJump.click();
+  await expect(page).toHaveURL(/#price$/);
+  await page.locator("#price").focus();
+  await expect(mobileJump).toBeHidden();
+  await page.locator(".fee-details summary").first().click();
+  await expect(page.locator(".fee-details").first()).toHaveAttribute("open", "");
 });
 
 test("empty and negative prices show a warning", async ({ page }) => {
