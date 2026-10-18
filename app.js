@@ -315,6 +315,8 @@
     try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ }
     render(); $("resultStatus").textContent = "Calculator reset to the example values.";
   });
-  $("upd").textContent = "Rates updated " + CONFIG.updated;
+  var updated = $("upd");
+  var statusDot = updated.querySelector(".status-dot");
+  updated.replaceChildren(statusDot, document.createTextNode("Rates updated " + CONFIG.updated));
   load(); sources(); render(); renderHistory();
 })();
