@@ -93,6 +93,7 @@
     details.appendChild(list);
     details.appendChild(node("p", "assumption", "Included: " + x.p.incl));
     details.appendChild(node("p", "assumption", "Not included: " + x.p.excl));
+    details.appendChild(node("p", "assumption", verificationText(x.p)));
     if (x.p.src) {
       var source = node("a", "source-link", "View " + x.p.srcName);
       source.href = x.p.src;
@@ -167,32 +168,15 @@
       }
     }
   }
-  function sources(updatedDate, failed) {
-    var updateMessage = updatedDate
-      ? "Rates last updated <b>" + updatedDate + "</b>. Platforms change fees often, so confirm on each site."
-      : failed
-        ? "The rate update date could not be verified. Platforms change fees often, so confirm current rates on each site."
-        : "Checking when rates were last updated…";
-    $("sources").innerHTML = "<p>" + updateMessage + "</p>" + CONFIG.platforms.map(function (p) {
-      return "<details><summary>" + p.name + "</summary><p><b>Included:</b> " + p.incl + "</p><p><b>Not included:</b> " + p.excl + "</p><p>Source: " + (p.src ? '<a href="' + p.src + '" target="_blank" rel="noopener noreferrer">' + p.srcName + "</a>" : p.srcName) + "</p></details>";
+  function sources() {
+    $("sources").innerHTML = "<p>Verification dates are tracked per platform fee source. Confirm current rates before listing.</p>" + CONFIG.platforms.map(function (p) {
+      return "<details><summary>" + p.name + "</summary><p><b>Included:</b> " + p.incl + "</p><p><b>Not included:</b> " + p.excl + "</p><p>" + verificationText(p) + "</p><p>Source: " + (p.src ? '<a href="' + p.src + '" target="_blank" rel="noopener noreferrer">' + p.srcName + "</a>" : p.srcName) + "</p></details>";
     }).join("");
   }
-  function updateRateDate() {
-    var updated = $("upd");
-    var statusDot = updated.querySelector(".status-dot");
-    window.fetch("fees.js?rate-date", {method: "HEAD", cache: "no-store"}).then(function (response) {
-      if (!response.ok) throw new Error("Rate source returned HTTP " + response.status);
-      var lastModified = response.headers.get("Last-Modified");
-      var date = lastModified && new Date(lastModified);
-      if (!date || !Number.isFinite(date.getTime())) throw new Error("Rate source has no valid Last-Modified date");
-      var formatted = date.toLocaleDateString("en-GB", {day: "numeric", month: "long", year: "numeric", timeZone: "UTC"});
-      updated.replaceChildren(statusDot, document.createTextNode("Rates updated " + formatted));
-      sources(formatted);
-    }).catch(function (error) {
-      window.console.warn("Unable to verify when rates were last updated.", error);
-      updated.replaceChildren(statusDot, document.createTextNode("Rate update date unavailable"));
-      sources(null, true);
-    });
+  function verificationText(platform) {
+    if (!platform.verifiedOn) return "Rate verification date not recorded; confirm with the linked source.";
+    var date = new Date(platform.verifiedOn + "T00:00:00Z");
+    return "Rates last checked " + date.toLocaleDateString("en-GB", {day: "numeric", month: "long", year: "numeric", timeZone: "UTC"}) + ".";
   }
   var HKEY = "ukspc.history.v1", HMAX = 20;
   function hload() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch { return []; } }
@@ -298,5 +282,5 @@
     try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ }
     render(); $("resultStatus").textContent = "Calculator reset to the example values.";
   });
-  load(); sources(); render(); renderHistory(); updateRateDate();
+  load(); sources(); render(); renderHistory();
 })();
