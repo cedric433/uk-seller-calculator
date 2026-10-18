@@ -14,6 +14,35 @@ test("shows all five platforms and a winner", async ({ page }) => {
   await expect(page.locator("#table")).toHaveCount(0);
 });
 
+test("input panel stays sticky within its grid row without overlapping source details", async ({ page }) => {
+  for (const viewport of [{ width: 1280, height: 800 }, { width: 640, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const inputPanel = page.locator(".inputs");
+    const inputWrapper = page.locator(".inputs-wrapper");
+    const sourceDetails = page.locator("#sources details summary").first();
+    if (viewport.width > 820) {
+      await page.evaluate("window.scrollTo(0, 450)");
+      const [inputBox, wrapperBox] = await Promise.all([inputPanel.boundingBox(), inputWrapper.boundingBox()]);
+      expect(inputBox).not.toBeNull();
+      expect(wrapperBox).not.toBeNull();
+      expect(inputBox.y).toBeCloseTo(16, 0);
+      expect(inputBox.y + inputBox.height).toBeLessThanOrEqual(wrapperBox.y + wrapperBox.height + 1);
+    } else {
+      await expect(inputPanel).toHaveCSS("position", "static");
+    }
+    await sourceDetails.scrollIntoViewIfNeeded();
+    const [inputBox, sourceBox] = await Promise.all([inputPanel.boundingBox(), sourceDetails.boundingBox()]);
+    expect(inputBox).not.toBeNull();
+    expect(sourceBox).not.toBeNull();
+    const overlaps = inputBox.x < sourceBox.x + sourceBox.width &&
+      inputBox.x + inputBox.width > sourceBox.x &&
+      inputBox.y < sourceBox.y + sourceBox.height &&
+      inputBox.y + inputBox.height > sourceBox.y;
+    expect(overlaps).toBe(false);
+  }
+});
+
 test("default numbers give the right Vinted profit", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("£21.50");
