@@ -1,4 +1,6 @@
 :root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   color-scheme: light;
   --bg: #f2f5f2;
   --card: #fff;
@@ -42,6 +44,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 
 a { color: var(--accent); }
@@ -828,4 +831,14 @@ summary {
   .brand-icon {
     color: #5ca4d6;
   }
+}
+
+h1, h2, h3, h4, h5, h6, .brand-title, .hook-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+input, button, select, textarea {
+  font-family: var(--font-sans);
 }
