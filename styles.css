@@ -47,7 +47,9 @@ body {
 a { color: var(--accent); }
 
 .hero {
-  background: var(--card);
+  background-color: var(--card);
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 24px 24px;
   border-top: 4px solid var(--accent);
   border-bottom: 1px solid var(--line);
 }
@@ -432,6 +434,14 @@ button[aria-pressed="true"] {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 6px 10px;
+}
+
+.platform-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  flex: 0 0 24px;
+  align-self: center;
 }
 
 .platform-identity h3 {

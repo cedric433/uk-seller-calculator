@@ -36,12 +36,18 @@
     var card = node("article", "platform-result" + (x.profit === best ? " best" : ""));
     var head = node("div", "result-head");
     var identity = node("div", "platform-identity");
+    var icon = node("img", "platform-icon");
+    icon.src = x.p.k + ".svg";
+    icon.alt = "";
+    icon.width = 24;
+    icon.height = 24;
     var title = node("h3", "", x.p.name);
     var tag = node("span", "platform-tag", x.p.tag);
     var profitWrap = node("div", "profit-wrap");
     var profitLabel = node("span", "profit-label", "Estimated profit");
     var profitValue = node("p", "profit" + (x.profit < 0 ? " neg" : " pos"), gbp(x.profit));
 
+    identity.appendChild(icon);
     identity.appendChild(title);
     identity.appendChild(tag);
     if (x.profit === best) identity.appendChild(node("span", "best-badge", "Highest profit"));

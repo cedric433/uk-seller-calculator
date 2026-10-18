@@ -2,7 +2,7 @@
 target: MarginHatch homepage
 total_score: 28
 max_score: 40
-na_heuristics: 
+na_heuristics:
 p0_count: 0
 p1_count: 2
 timestamp: 2026-10-18T16-21-57Z
