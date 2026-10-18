@@ -24,7 +24,7 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: #09090b;
+  background: var(--bg);
   color: var(--text);
   font: 16px/1.55 var(--font-sans);
 }
