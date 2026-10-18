@@ -103,7 +103,7 @@
     summary.appendChild(resultTitle);
     summary.appendChild(resultValue);
     summary.appendChild(resultNote);
-    sorted.forEach(function (x) { output.appendChild(renderPlatform(x, best)); });
+    sorted.forEach(function (x) { output.appendChild(renderPlatform(x, best, o.target)); });
   }
   function sources() {
     $("sources").innerHTML = "<p>Rates last updated <b>" + CONFIG.updated + "</b>. Platforms change fees often, so confirm on each site.</p>" + CONFIG.platforms.map(function (p) {
