@@ -32,7 +32,7 @@
     wrap.appendChild(dt); wrap.appendChild(dd);
     return wrap;
   }
-  function renderPlatform(x, best) {
+  function renderPlatform(x, best, targetProfit) {
     var card = node("article", "platform-result" + (x.profit === best ? " best" : ""));
     var head = node("div", "result-head");
     var identity = node("div", "platform-identity");
