@@ -11,6 +11,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --no-audit --no-fund
+      - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/monitor.spec.js
+      - id: monitor
+        run: npm run test:monitor
+      - name: Summarize fee source checks
+        if: always()
+        env:
+          MONITOR_OUTCOME: ${{ steps.monitor.outcome }}
+        run: |
+          if [ "$MONITOR_OUTCOME" = "success" ]; then
+            echo "## Fee source monitor" >> "$GITHUB_STEP_SUMMARY"
+            echo "All checked platform fee assumptions matched their published sources." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Fee source monitor needs review" >> "$GITHUB_STEP_SUMMARY"
+            echo "At least one source was inaccessible or failed its fee assertion. Open the failed platform test and source URL in the job log. If access was blocked, verify manually; do not infer a rate change. If a published rate changed, update fees.js, its verifiedOn date, and the monitor expectation." >> "$GITHUB_STEP_SUMMARY"
+          fi

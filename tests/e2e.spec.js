@@ -3,7 +3,7 @@ const AxeBuilder = require("@axe-core/playwright").default;
 
 test("built-in calculator checks all pass", async ({ page }) => {
   await page.goto("/tests.html");
-  await expect(page.locator("#out li")).toHaveCount(10);
+  await expect(page.locator("#out li")).toHaveCount(12);
   await expect(page.locator("#out li", { hasText: "FAIL" })).toHaveCount(0);
 });
 
@@ -14,27 +14,23 @@ test("shows all five platforms and a winner", async ({ page }) => {
   await expect(page.locator("#table")).toHaveCount(0);
 });
 
-test("rate update date follows fees.js and former hero badges are absent", async ({ page }) => {
-  let lastModified = "Sun, 18 Oct 2026 00:00:00 GMT";
-  await page.route("**/fees.js*", async route => {
-    if (route.request().method() === "HEAD") {
-      await route.fulfill({status: 200, headers: {"Last-Modified": lastModified}});
-      return;
-    }
-    await route.continue();
-  });
+test("calculator pages use the custom domain for canonical and social URLs", async ({ page }) => {
+  for (const path of ["/", "/ebay-fee-calculator-uk.html", "/etsy-fee-calculator-uk.html", "/depop-fee-calculator-uk.html", "/vinted-profit-calculator.html"]) {
+    const canonical = `https://marginhatch.com${path}`;
+    await page.goto(path);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", canonical);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", canonical);
+  }
+});
 
+test("fee verification dates are shown per platform and former hero badges are absent", async ({ page }) => {
   for (const path of ["/", "/ebay-fee-calculator-uk.html", "/etsy-fee-calculator-uk.html", "/depop-fee-calculator-uk.html", "/vinted-profit-calculator.html"]) {
     await page.goto(path);
-    await expect(page.locator("#upd")).toHaveText("Rates updated 18 October 2026");
-    await expect(page.locator("#sources")).toContainText("Rates last updated 18 October 2026");
+    await expect(page.locator("#upd")).toContainText("Verification dates appear with each fee source");
+    await expect(page.locator("#sources")).toContainText("Rates last checked 18 October 2026");
+    await expect(page.locator("#sources")).toContainText("Rate verification date not recorded");
     await expect(page.locator(".chips")).not.toContainText(/Free tool|No sign-up/);
   }
-
-  lastModified = "Mon, 19 Oct 2026 00:00:00 GMT";
-  await page.reload();
-  await expect(page.locator("#upd")).toHaveText("Rates updated 19 October 2026");
-  await expect(page.locator("#sources")).toContainText("Rates last updated 19 October 2026");
 });
 
 test("input panel stays sticky within its grid row without overlapping source details", async ({ page }) => {
@@ -144,7 +140,9 @@ test("mobile comparison fits the viewport and keeps fee details expandable", asy
   await expect(page).toHaveURL(/#price$/);
   await page.locator("#price").focus();
   await expect(mobileJump).toBeHidden();
-  await page.locator(".fee-details summary").first().click();
+  const feeSummary = page.locator(".fee-details summary").first();
+  await feeSummary.scrollIntoViewIfNeeded();
+  await feeSummary.click();
   await expect(page.locator(".fee-details").first()).toHaveAttribute("open", "");
 });
 

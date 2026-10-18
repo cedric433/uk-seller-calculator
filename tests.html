@@ -15,4 +15,9 @@ t("Negative and blank input clean to 0",clean(-5)===0&&clean("")===0);
 var n=need("etsy",o);t("Target price delivers at least the target profit",profit("etsy",n,o)>=o.target-0.005);
 t("Quantity multiplies item revenue and item costs",profit("vinted",30,Object.assign({},o,{qty:3,cost:8,shipCost:3,other:0.5}))===65.5);
 t("Etsy listing fees apply to each item quantity",near(fees("etsy",30,Object.assign({},o,{qty:3})).L[0][1],0.45));
+var highTarget={ship:0,cost:6000,shipCost:0,other:0,qty:1,target:0};
+var highPrice=need("vinted",highTarget);
+t("Target price search finds profitable prices above £5,000",highPrice>=6000&&profit("vinted",highPrice,highTarget)>=0);
+var impossible={ship:0,cost:0,shipCost:0,other:0,qty:1,cat:100,target:1,vat:true};
+t("Unreachable profit targets return no target price",need("ebayb",impossible)===null);
 </script></body>

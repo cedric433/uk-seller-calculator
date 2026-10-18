@@ -2,15 +2,15 @@
 var CONFIG = {
   vat: 0.20,
   platforms: [
-    {k:"ebayp", name:"eBay UK (private)", tag:"Casual sellers", caveat:"Private seller rates are for casual selling, not regular trading. Check which account type applies to you.", src:"https://www.ebay.co.uk/help/selling/selling-fees/Fees-business-sellers?id=4809", srcName:"eBay UK fees page",
+    {k:"ebayp", name:"eBay UK (private)", tag:"Casual sellers", caveat:"Private seller rates are for casual selling, not regular trading. Check which account type applies to you.", src:"https://www.ebay.co.uk/help/selling/selling-fees/Fees-business-sellers?id=4809", srcName:"eBay UK fees page", verifiedOn:null,
       incl:"No final value or order fee for private sellers.", excl:"Extra listing fees after the monthly free allowance, Promoted Listings."},
-    {k:"ebayb", name:"eBay UK (business)", tag:"Trader account", src:"https://www.ebay.co.uk/help/selling/selling-fees/Fees-business-sellers?id=4809", srcName:"eBay UK fees page",
+    {k:"ebayb", name:"eBay UK (business)", tag:"Trader account", src:"https://www.ebay.co.uk/help/selling/selling-fees/Fees-business-sellers?id=4809", srcName:"eBay UK fees page", verifiedOn:"2026-10-18",
       incl:"Category % on item + postage, £0.30 order fee (£0.40 over £10), 0.35% regulatory fee, optional 20% VAT on fees.", excl:"Promoted Listings, Shop subscription, banded category rates (enter your own %)."},
-    {k:"etsy", name:"Etsy UK", tag:"Handmade, vintage, supplies", src:"https://www.etsy.com/legal/fees", srcName:"Etsy fees policy",
+    {k:"etsy", name:"Etsy UK", tag:"Handmade, vintage, supplies", src:"https://help.etsy.com/hc/en-gb/articles/115014483627-What-are-the-Fees-and-Taxes-for-Selling-on-Etsy-", srcName:"Etsy fees and taxes", verifiedOn:"2026-10-18",
       incl:"£0.15 listing, 6.5% transaction, 4% + £0.20 processing, 0.48% regulatory fee (from 22 June 2026), optional 15% Offsite Ads, optional 20% VAT on fees.", excl:"Etsy Ads, currency conversion, shipping labels, payment reserves."},
-    {k:"depop", name:"Depop UK", tag:"Fashion resale", caveat:"This estimate assumes a 0% UK selling fee. Published sources conflict, so verify current fees before listing.", src:"https://depophelp.zendesk.com", srcName:"Depop Help Centre",
+    {k:"depop", name:"Depop UK", tag:"Fashion resale", caveat:"This estimate assumes a 0% UK selling fee. Published sources conflict, so verify current fees before listing.", src:"https://depophelp.zendesk.com", srcName:"Depop Help Centre", verifiedOn:null,
       incl:"2.9% + £0.30 payment processing, optional 12% boost fee.", excl:"Shipping label costs. Sources conflict on the UK selling fee; 0% is assumed, so verify."},
-    {k:"vinted", name:"Vinted UK", tag:"Zero seller fees", caveat:"Buyer protection fees are not included in your seller payout estimate.", src:"https://www.vinted.co.uk/pricelist", srcName:"Vinted price list (updated 8 Oct 2026)",
+    {k:"vinted", name:"Vinted UK", tag:"Zero seller fees", caveat:"Buyer protection fees are not included in your seller payout estimate.", src:"https://www.vinted.co.uk/pricelist", srcName:"Vinted price list (updated 8 Oct 2026)", verifiedOn:"2026-10-18",
       incl:"No seller fee on sales.", excl:"Optional paid Bump and Showcase fees (price varies), and shipping. Buyers pay the Vinted fee (about 3% to 8% + £0.30 to £0.80), which is not shown."}
   ]
 };
@@ -28,8 +28,12 @@ function fees(k, price, o) {
   return {L: L, total: sum, base: base};
 }
 function profit(k, price, o) { o = o || {}; var f = fees(k, price, o), qty = clean(o.qty, 100000) || 1; return f.base - f.total - (o.cost || 0) * qty - (o.shipCost || 0) - (o.other || 0); }
-function need(k, o) { /* price needed for target profit, rounded up to the next penny */
-  var lo = 0, hi = 5000, i, m;
+function need(k, o) {
+  var lo = 0, hi = 1, max = Number.MAX_SAFE_INTEGER / 100, i, m;
+  while (profit(k, hi, o) < o.target && hi < max) {
+    lo = hi;
+    hi = Math.min(hi * 2, max);
+  }
   if (profit(k, hi, o) < o.target) return null;
   for (i = 0; i < 60; i++) { m = (lo + hi) / 2; if (profit(k, m, o) < o.target) lo = m; else hi = m; }
   return Math.ceil(hi * 100) / 100;

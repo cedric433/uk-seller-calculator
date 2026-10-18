@@ -28,7 +28,7 @@
 
 ## Checklist
 
-- [ ] Fee, rate, or calculation changes are checked against expected scenarios; fee sources and `CONFIG.updated` are current where applicable. (N/A if not applicable)
+- [ ] Fee, rate, or calculation changes are checked against expected scenarios; fee sources and per-platform `verifiedOn` dates are current where applicable. (N/A if not applicable)
 - [ ] UI changes are checked on mobile and desktop, including layout and accessibility. (N/A if not applicable)
 - [ ] Related calculator pages and platform comparisons are updated consistently. (N/A if not applicable)
 - [ ] `npm run lint` and `npm test` pass, or the Verification section explains what was not run and why.

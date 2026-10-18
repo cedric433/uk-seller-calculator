@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://cedric433.github.io/uk-seller-calculator/sitemap.xml
+Sitemap: https://marginhatch.com/sitemap.xml

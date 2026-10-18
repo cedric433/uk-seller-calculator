@@ -2,8 +2,9 @@
   "name": "uk-seller-calculator",
   "private": true,
   "scripts": {
-    "lint": "html-validate index.html && eslint .",
-    "test": "playwright test"
+    "lint": "html-validate index.html ebay-fee-calculator-uk.html etsy-fee-calculator-uk.html depop-fee-calculator-uk.html vinted-profit-calculator.html && eslint .",
+    "test": "playwright test tests/e2e.spec.js",
+    "test:monitor": "playwright test tests/monitor.spec.js"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",
