@@ -41,13 +41,25 @@
 </div>
 </div></header>
 <main class="layout">
+<aside class="scroll-tracker" aria-hidden="true">
+  <div class="track-line"></div>
+  <div class="track-step" data-target="sale-step">
+    <div class="track-dot"></div><span class="track-label">Sale</span>
+  </div>
+  <div class="track-step" data-target="costs-step">
+    <div class="track-dot"></div><span class="track-label">Costs</span>
+  </div>
+  <div class="track-step" data-target="results-step">
+    <div class="track-dot"></div><span class="track-label">Results</span>
+  </div>
+</aside>
 <section class="panel inputs" aria-label="Sale details">
 <div class="presets"><button type="button" data-preset="low">Low-value</button><button type="button" data-preset="free">Free postage</button><button type="button" data-preset="high">High-value</button><button type="button" data-preset="vatreg">VAT-registered</button><button type="button" id="reset">Reset</button></div>
-<fieldset><legend>The sale</legend><div class="g2">
+<fieldset id="sale-step"><legend>The sale</legend><div class="g2">
 <div><label for="price">Item price</label><div class="in"><span>£</span><input id="price" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 <div><label for="ship">Postage you charge</label><div class="in"><span>£</span><input id="ship" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 </div></fieldset>
-<fieldset><legend>Your costs</legend><div class="g2">
+<fieldset id="costs-step"><legend>Your costs</legend><div class="g2">
 <div><label for="cost">Item cost</label><div class="in"><span>£</span><input id="cost" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 <div><label for="shipCost">Postage you pay</label><div class="in"><span>£</span><input id="shipCost" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
 <div><label for="other">Packaging / other</label><div class="in"><span>£</span><input id="other" type="number" inputmode="decimal" min="0" step="0.01"></div></div>
@@ -74,7 +86,7 @@
 
 <section class="results" id="results" aria-live="polite" aria-label="Results">
 <div id="summary" class="summary"></div>
-<div class="results-heading"><h2 id="platformResults">Compare platforms</h2></div>
+<div class="results-heading" id="results-step"><h2 id="platformResults">Compare platforms</h2></div>
 <div id="platformCards" class="platform-results"></div>
 <p id="resultStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 </section>
