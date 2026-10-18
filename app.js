@@ -8,33 +8,112 @@
   function save() { try { var s = {}; F.forEach(function (f) { s[f] = $(f).value; }); C.forEach(function (c) { s[c] = $(c).checked; }); localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage unavailable */ } }
   function load() { var s = DEF; try { var r = localStorage.getItem(KEY); if (r) s = Object.assign({}, DEF, JSON.parse(r)); } catch { /* storage unavailable */ } apply(s); }
   function read() {
-    var o = {}, w = [];
-    F.forEach(function (f) { var raw = parseFloat($(f).value); if (raw < 0 && w.indexOf("Negative values are treated as £0.") < 0) w.push("Negative values are treated as £0."); o[f] = clean(raw, f === "cat" ? 100 : 100000); });
+    var o = {}, w = [], negative = [];
+    F.forEach(function (f) {
+      var raw = parseFloat($(f).value);
+      if (raw < 0) negative.push(($(f).labels && $(f).labels[0]) ? $(f).labels[0].textContent : f);
+      o[f] = clean(raw, f === "cat" ? 100 : 100000);
+      $(f).setAttribute("aria-invalid", raw < 0 ? "true" : "false");
+    });
     C.forEach(function (c) { o[c] = $(c).checked; });
     if (o.price === 0) w.push("Enter an item price above £0 to see results.");
-    if (o.cat > 30) w.push("A category fee above 30% looks unusual. Check eBay’s fee page.");
+    if (negative.length) w.push("Use £0 or more for " + negative.join(", ") + ". Negative values are treated as £0.");
+    if (o.cat > 30) w.push("The eBay business fee is above 30%. Check your category rate against eBay’s fee page.");
     return {o: o, w: w};
+  }
+  function node(tag, className, text) {
+    var e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function metric(label, value) {
+    var wrap = node("div"), dt = node("dt", "", label), dd = node("dd", "", value);
+    wrap.appendChild(dt); wrap.appendChild(dd);
+    return wrap;
+  }
+  function renderPlatform(x, best, targetProfit) {
+    var card = node("article", "platform-result" + (x.profit === best ? " best" : ""));
+    var head = node("div", "result-head");
+    var identity = node("div", "platform-identity");
+    var icon = node("img", "platform-icon");
+    icon.src = x.p.k + ".svg";
+    icon.alt = "";
+    icon.width = 24;
+    icon.height = 24;
+    var title = node("h3", "", x.p.name);
+    var tag = node("span", "platform-tag", x.p.tag);
+    var profitWrap = node("div", "profit-wrap");
+    var profitLabel = node("span", "profit-label", "Estimated profit");
+    var profitValue = node("p", "profit" + (x.profit < 0 ? " neg" : " pos"), gbp(x.profit));
+
+    identity.appendChild(icon);
+    identity.appendChild(title);
+    identity.appendChild(tag);
+    if (x.profit === best) identity.appendChild(node("span", "best-badge", "Highest profit"));
+    head.appendChild(identity);
+    profitWrap.appendChild(profitLabel);
+    profitWrap.appendChild(profitValue);
+    head.appendChild(profitWrap);
+    card.appendChild(head);
+
+    if (x.p.caveat) card.appendChild(node("p", "caveat", x.p.caveat));
+
+    var stats = node("dl", "result-stats");
+    stats.appendChild(metric("Seller fees", gbp(x.f.total)));
+    stats.appendChild(metric("Margin", (x.f.base ? (x.profit / x.f.base * 100).toFixed(1) : "0.0") + "%"));
+    stats.appendChild(metric("Price for " + gbp(targetProfit) + " profit", x.need === null ? "Not reached" : gbp(x.need)));
+    card.appendChild(stats);
+
+    var details = node("details", "fee-details");
+    var summary = node("summary", "", "Fee breakdown and assumptions");
+    var list = node("ul", "fee-list");
+    x.f.L.forEach(function (line) {
+      var row = node("li"), name = node("span", "", line[0]), amount = node("b", "", gbp(line[1]));
+      row.appendChild(name); row.appendChild(amount); list.appendChild(row);
+    });
+    var total = node("li", "fee-total"), totalLabel = node("b", "", "Total seller fees"), totalValue = node("b", "", gbp(x.f.total));
+    total.appendChild(totalLabel); total.appendChild(totalValue); list.appendChild(total);
+    details.appendChild(summary);
+    details.appendChild(list);
+    details.appendChild(node("p", "assumption", "Included: " + x.p.incl));
+    details.appendChild(node("p", "assumption", "Not included: " + x.p.excl));
+    if (x.p.src) {
+      var source = node("a", "source-link", "View " + x.p.srcName);
+      source.href = x.p.src;
+      source.target = "_blank";
+      source.rel = "noopener noreferrer";
+      details.appendChild(source);
+    }
+    card.appendChild(details);
+    return card;
   }
   function render() {
     var r = read(), o = r.o;
     $("warn").textContent = r.w.join(" ");
-    if (o.price === 0) { $("table").innerHTML = ""; $("cards").innerHTML = ""; $("summary").textContent = ""; return; }
+    var output = $("platformCards"), summary = $("summary");
+    output.textContent = "";
+    summary.textContent = "";
+    if (o.price === 0) {
+      summary.appendChild(node("h2", "", "Add your sale price to compare platforms"));
+      summary.appendChild(node("p", "", "Enter an item price above £0 to see estimated profit, fees, margin, and target price."));
+      return;
+    }
     var res = CONFIG.platforms.map(function (p) { var f = fees(p.k, o.price, o); return {p: p, f: f, profit: f.base - f.total - o.cost - o.shipCost - o.other, need: need(p.k, o)}; });
     var best = Math.max.apply(null, res.map(function (x) { return x.profit; })), worst = Math.min.apply(null, res.map(function (x) { return x.profit; }));
     var top = res.filter(function (x) { return x.profit === best; }).map(function (x) { return x.p.name; });
-    $("summary").textContent = "Highest profit: " + top.join(" and ") + " (" + gbp(best) + "). The gap to the lowest option is " + gbp(best - worst) + ". This compares profit only, not demand or account eligibility.";
     var sorted = res.slice().sort(function (a, b) { return b.profit - a.profit; });
-    $("table").innerHTML = "<thead><tr><th>Platform</th><th>Fees</th><th>Profit</th><th>Margin</th><th>Price for " + gbp(o.target) + " profit</th></tr></thead><tbody>" +
-      sorted.map(function (x) { return "<tr" + (x.profit === best ? ' class="best"' : "") + "><td>" + x.p.name + "</td><td>" + gbp(x.f.total) + "</td><td>" + gbp(x.profit) + "</td><td>" + (x.f.base ? (x.profit / x.f.base * 100).toFixed(1) : "0.0") + "%</td><td>" + (x.need === null ? "n/a" : gbp(x.need)) + "</td></tr>"; }).join("") + "</tbody>";
-    $("cards").innerHTML = res.map(function (x) {
-      return '<div class="card' + (x.profit === best ? " best" : "") + '"><div class="card-head"><img src="' + x.p.k + '.svg" alt="" width="24" height="24"><h3>' + x.p.name + '</h3></div><div class="badge">' + (x.profit === best ? "HIGHEST PROFIT · " : "") + x.p.tag + '</div>' +
-        '<div class="profit ' + (x.profit < 0 ? "neg" : "pos") + '">' + gbp(x.profit) + '</div>' +
-        "<ul>" + x.f.L.map(function (l) { return "<li><span>" + l[0] + "</span><span>" + gbp(l[1]) + "</span></li>"; }).join("") + "<li><span><b>Total fees</b></span><span><b>" + gbp(x.f.total) + "</b></span></li></ul></div>";
-    }).join("");
+    var resultTitle = node("h2", "", "Highest estimated profit");
+    var resultValue = node("p", "summary-value", top.join(" and ") + " · " + gbp(best));
+    var resultNote = node("p", "summary-note", "The gap to the lowest estimate is " + gbp(best - worst) + ". Profit only; check each platform’s fee and eligibility notes before deciding.");
+    summary.appendChild(resultTitle);
+    summary.appendChild(resultValue);
+    summary.appendChild(resultNote);
+    sorted.forEach(function (x) { output.appendChild(renderPlatform(x, best, o.target)); });
   }
   function sources() {
     $("sources").innerHTML = "<p>Rates last updated <b>" + CONFIG.updated + "</b>. Platforms change fees often, so confirm on each site.</p>" + CONFIG.platforms.map(function (p) {
-      return "<details><summary>" + p.name + "</summary><p><b>Included:</b> " + p.incl + "</p><p><b>Not included:</b> " + p.excl + "</p><p>Source: " + (p.src ? '<a href="' + p.src + '" rel="noopener">' + p.srcName + "</a>" : p.srcName) + "</p></details>";
+      return "<details><summary>" + p.name + "</summary><p><b>Included:</b> " + p.incl + "</p><p><b>Not included:</b> " + p.excl + "</p><p>Source: " + (p.src ? '<a href="' + p.src + '" target="_blank" rel="noopener noreferrer">' + p.srcName + "</a>" : p.srcName) + "</p></details>";
     }).join("");
   }
   var HKEY = "ukspc.history.v1", HMAX = 20;
@@ -49,6 +128,7 @@
     CONFIG.platforms.forEach(function (p) { var v = profit(p.k, o.price, o); if (!best || v > best.v) best = {n: p.name, v: v}; });
     var a = hload(); a.unshift({t: Date.now(), note: ($("note").value || "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
     hsave(a.slice(0, HMAX)); $("note").value = ""; renderHistory();
+    $("resultStatus").textContent = "Calculation saved on this device.";
   }
   function renderHistory() {
     var a = hload(), box = $("history"); box.textContent = ""; $("clearHist").hidden = !a.length;
@@ -57,18 +137,64 @@
       var row = document.createElement("div"), txt = document.createElement("div");
       row.className = "hrow";
       var d = new Date(e.t).toLocaleString("en-GB", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"});
-      txt.textContent = (e.note ? e.note + " · " : "") + gbp(clean(e.inp.price)) + " item, cost " + gbp(clean(e.inp.cost)) + " → " + e.best + " " + gbp(e.profit) + " (" + d + ")";
+      txt.textContent = (e.note ? e.note + " · " : "") + gbp(clean(e.inp.price)) + " item · " +
+        gbp(clean(e.inp.ship)) + " postage charged · " + gbp(clean(e.inp.cost)) + " item cost · " +
+        gbp(clean(e.inp.shipCost)) + " postage cost · eBay fee " + clean(e.inp.cat) + "% · VAT " +
+        (e.inp.vat ? "on" : "off") + " · Etsy ads " + (e.inp.ads ? "on" : "off") +
+        " · Depop boost " + (e.inp.boost ? "on" : "off") + " → " + e.best + " " + gbp(e.profit) + " (" + d + ")";
       row.appendChild(txt);
-      row.appendChild(mk("Load", function () { apply(e.inp); save(); render(); }));
-      row.appendChild(mk("Delete", function () { var h = hload(); h.splice(i, 1); hsave(h); renderHistory(); }));
+      var label = (e.note || gbp(clean(e.inp.price)) + " item");
+      var load = mk("Load", function () { apply(e.inp); save(); render(); $("resultStatus").textContent = label + " loaded."; });
+      load.setAttribute("aria-label", "Load " + label);
+      row.appendChild(load);
+      var remove = mk("Delete", function () { var h = hload(); h.splice(i, 1); hsave(h); renderHistory(); $("resultStatus").textContent = label + " removed from saved calculations."; });
+      remove.setAttribute("aria-label", "Delete " + label);
+      row.appendChild(remove);
       box.appendChild(row);
     });
   }
   $("saveCalc").addEventListener("click", addHistory);
-  $("clearHist").addEventListener("click", function () { if (confirm("Delete all saved calculations?")) { hsave([]); renderHistory(); } });
-  document.querySelectorAll("input").forEach(function (e) { e.addEventListener("input", function () { save(); render(); }); e.addEventListener("change", function () { save(); render(); }); });
-  document.querySelectorAll("[data-preset]").forEach(function (b) { b.addEventListener("click", function () { apply(PRE[b.getAttribute("data-preset")]); save(); render(); }); });
-  $("reset").addEventListener("click", function () { apply(DEF); try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ } render(); });
+  $("clearHist").addEventListener("click", function () {
+    if (confirm("Delete all saved calculations?")) {
+      hsave([]); renderHistory(); $("resultStatus").textContent = "All saved calculations deleted from this device.";
+    }
+  });
+  document.querySelectorAll(".inputs input").forEach(function (e) {
+    e.addEventListener("input", function () { clearPresetState(); save(); render(); });
+    e.addEventListener("change", function () { clearPresetState(); save(); render(); $("resultStatus").textContent = "Platform comparison updated."; });
+  });
+  function clearPresetState() {
+    document.querySelectorAll("[data-preset]").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+  }
+  if ("IntersectionObserver" in window) {
+    var mobileJump = $("mobileJump");
+    var resultsObserver = new window.IntersectionObserver(function (entries) {
+      var editing = entries[0].isIntersecting;
+      mobileJump.href = editing ? "#price" : "#platformResults";
+      mobileJump.textContent = editing ? "Edit sale details ↑" : "Compare platforms ↓";
+      mobileJump.setAttribute("aria-label", editing ? "Edit sale details" : "Compare platform results");
+    }, {threshold: 0});
+    resultsObserver.observe($("results"));
+  }
+  document.querySelectorAll("[data-preset]").forEach(function (b) {
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function () {
+      var preset = b.getAttribute("data-preset");
+      apply(PRE[preset]); save(); render(); clearPresetState(); b.setAttribute("aria-pressed", "true");
+      var descriptions = {
+        low: "Low-value example applied. Sale price, postage and costs changed; your fee options were kept.",
+        free: "Free-postage example applied. Sale price, postage and costs changed; your fee options were kept.",
+        high: "High-value example applied. Sale price, postage and costs changed; your fee options were kept.",
+        vatreg: "VAT-registered example applied. VAT on seller fees was turned off; other values were kept."
+      };
+      $("resultStatus").textContent = descriptions[preset];
+    });
+  });
+  $("reset").addEventListener("click", function () {
+    apply(DEF); clearPresetState();
+    try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ }
+    render(); $("resultStatus").textContent = "Calculator reset to the example values.";
+  });
   $("upd").textContent = "Rates updated " + CONFIG.updated;
   load(); sources(); render(); renderHistory();
 })();
