@@ -13,12 +13,23 @@ test("shows all five platforms and a winner", async ({ page }) => {
   await expect(page.locator("#summary")).toContainText("Highest profit");
 });
 
-test("input panel does not overlap source details while scrolling", async ({ page }) => {
+test("input panel stays sticky within its grid row without overlapping source details", async ({ page }) => {
   for (const viewport of [{ width: 1280, height: 800 }, { width: 640, height: 800 }]) {
     await page.setViewportSize(viewport);
     await page.goto("/");
     const inputPanel = page.locator(".inputs");
+    const inputWrapper = page.locator(".inputs-wrapper");
     const sourceDetails = page.locator("#sources details summary").first();
+    if (viewport.width > 820) {
+      await page.evaluate("window.scrollTo(0, 450)");
+      const [inputBox, wrapperBox] = await Promise.all([inputPanel.boundingBox(), inputWrapper.boundingBox()]);
+      expect(inputBox).not.toBeNull();
+      expect(wrapperBox).not.toBeNull();
+      expect(inputBox.y).toBeCloseTo(16, 0);
+      expect(inputBox.y + inputBox.height).toBeLessThanOrEqual(wrapperBox.y + wrapperBox.height + 1);
+    } else {
+      await expect(inputPanel).toHaveCSS("position", "static");
+    }
     await sourceDetails.scrollIntoViewIfNeeded();
     const [inputBox, sourceBox] = await Promise.all([inputPanel.boundingBox(), sourceDetails.boundingBox()]);
     expect(inputBox).not.toBeNull();
