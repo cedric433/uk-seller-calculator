@@ -816,3 +816,16 @@ summary {
   letter-spacing: -0.01em;
   line-height: 1;
 }
+
+@media (prefers-color-scheme: dark) {
+  .color-navy {
+    color: var(--text);
+  }
+  .brand-tagline {
+    color: var(--muted);
+  }
+  .color-blue,
+  .brand-icon {
+    color: #5ca4d6;
+  }
+}
