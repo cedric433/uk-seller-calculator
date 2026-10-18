@@ -11,7 +11,7 @@
     var o = {}, w = [], negative = [];
     F.forEach(function (f) {
       var raw = parseFloat($(f).value);
-      if (raw < 0) negative.push($(f).labels[0].textContent);
+      if (raw < 0) negative.push(($(f).labels && $(f).labels[0]) ? $(f).labels[0].textContent : f);
       o[f] = clean(raw, f === "cat" ? 100 : 100000);
       $(f).setAttribute("aria-invalid", raw < 0 ? "true" : "false");
     });
