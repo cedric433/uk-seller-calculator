@@ -27,7 +27,7 @@
     $("table").innerHTML = "<thead><tr><th>Platform</th><th>Fees</th><th>Profit</th><th>Margin</th><th>Price for " + gbp(o.target) + " profit</th></tr></thead><tbody>" +
       sorted.map(function (x) { return "<tr" + (x.profit === best ? ' class="best"' : "") + "><td>" + x.p.name + "</td><td>" + gbp(x.f.total) + "</td><td>" + gbp(x.profit) + "</td><td>" + (x.f.base ? (x.profit / x.f.base * 100).toFixed(1) : "0.0") + "%</td><td>" + (x.need === null ? "n/a" : gbp(x.need)) + "</td></tr>"; }).join("") + "</tbody>";
     $("cards").innerHTML = res.map(function (x) {
-      return '<div class="card' + (x.profit === best ? " best" : "") + '"><h3>' + x.p.name + '</h3><div class="badge">' + (x.profit === best ? "HIGHEST PROFIT · " : "") + x.p.tag + '</div>' +
+      return '<div class="card' + (x.profit === best ? " best" : "") + '"><div class="card-head"><img src="' + x.p.k + '.svg" alt="" width="24" height="24"><h3>' + x.p.name + '</h3></div><div class="badge">' + (x.profit === best ? "HIGHEST PROFIT · " : "") + x.p.tag + '</div>' +
         '<div class="profit ' + (x.profit < 0 ? "neg" : "pos") + '">' + gbp(x.profit) + '</div>' +
         "<ul>" + x.f.L.map(function (l) { return "<li><span>" + l[0] + "</span><span>" + gbp(l[1]) + "</span></li>"; }).join("") + "<li><span><b>Total fees</b></span><span><b>" + gbp(x.f.total) + "</b></span></li></ul></div>";
     }).join("");
