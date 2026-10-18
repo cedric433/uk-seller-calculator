@@ -802,7 +802,7 @@ summary {
     bottom: 10px;
     left: 11px;
     width: 2px;
-    background-color: #27272a;
+    background-color: var(--line);
     z-index: 0;
   }
 
@@ -817,26 +817,26 @@ summary {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background-color: #18181b;
-    border: 2px solid #3f3f46;
+    background-color: var(--card);
+    border: 2px solid var(--line);
     transition: all 0.3s ease;
   }
 
   .track-label {
     font-size: 14px;
     font-weight: 600;
-    color: #71717a;
+    color: var(--muted);
     transition: color 0.3s ease;
   }
 
   .track-step.active .track-dot {
-    background-color: #3b78a6;
-    border-color: #3b78a6;
-    box-shadow: 0 0 0 4px rgba(59, 120, 166, 0.2);
+    background-color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
   }
 
   .track-step.active .track-label {
-    color: #e2e8f0;
+    color: var(--text);
   }
 
   .inputs-wrapper,
