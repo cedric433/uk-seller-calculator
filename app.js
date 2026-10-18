@@ -162,8 +162,8 @@
     var inp = {}; F.forEach(function (f) { inp[f] = $(f).value; }); C.forEach(function (c) { inp[c] = $(c).checked; });
     var best = null;
     CONFIG.platforms.forEach(function (p) { var v = profit(p.k, o.price, o); if (!best || v > best.v) best = {n: p.name, v: v}; });
-    var a = hload(); a.unshift({t: Date.now(), note: ($("note").value || "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
-    hsave(a.slice(0, HMAX)); $("note").value = ""; renderHistory();
+    var a = hload(); a.unshift({t: Date.now(), note: ($("save-calc-name").value || "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
+    hsave(a.slice(0, HMAX)); $("save-calc-name").value = ""; renderHistory();
     $("resultStatus").textContent = "Calculation saved on this device.";
   }
   function renderHistory() {
@@ -189,7 +189,13 @@
       box.appendChild(row);
     });
   }
-  $("saveCalc").addEventListener("click", addHistory);
+  $("save-calc-btn").addEventListener("click", addHistory);
+  $("save-calc-name").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      $("save-calc-btn").click();
+    }
+  });
   $("clearHist").addEventListener("click", function () {
     if (confirm("Delete all saved calculations?")) {
       hsave([]); renderHistory(); $("resultStatus").textContent = "All saved calculations deleted from this device.";
@@ -198,6 +204,14 @@
   document.querySelectorAll(".inputs input").forEach(function (e) {
     e.addEventListener("input", function () { if (e.id === "ebay-fee-input") syncCategory(); clearPresetState(); save(); render(); });
     e.addEventListener("change", function () { clearPresetState(); save(); render(); $("resultStatus").textContent = "Platform comparison updated."; });
+    if (e.type === "number") {
+      e.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          e.blur();
+        }
+      });
+    }
   });
   var ebayCategory = $("ebay-category");
   if (ebayCategory) {

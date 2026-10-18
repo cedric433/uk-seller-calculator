@@ -113,11 +113,38 @@ test("empty and negative prices show a warning", async ({ page }) => {
 
 test("saved calculations survive a reload", async ({ page }) => {
   await page.goto("/");
-  await page.fill("#note", "Test item");
-  await page.click("#saveCalc");
+  await page.fill("#save-calc-name", "Test item");
+  await page.click("#save-calc-btn");
   await page.reload();
   await expect(page.locator("#history .hrow")).toHaveCount(1);
   await expect(page.locator("#history")).toContainText("Test item");
+});
+
+test("Enter saves a named calculation", async ({ page }) => {
+  await page.goto("/");
+  await page.fill("#save-calc-name", "Keyboard item");
+  await page.locator("#save-calc-name").press("Enter");
+  await expect(page.locator("#history")).toContainText("Keyboard item");
+  await expect(page.locator("#resultStatus")).toContainText("Calculation saved");
+});
+
+test("Enter recalculates a numeric input without submitting the page", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await page.fill("#price", "40");
+  await page.locator("#price").press("Enter");
+  await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("£31.50");
+  await expect(page.locator("#resultStatus")).toContainText("Platform comparison updated");
+  await expect(page.locator("#price")).not.toBeFocused();
+  await expect(page.locator("#mobileJump")).toBeVisible();
+  await expect(page).toHaveURL("/");
+});
+
+test("interactive controls show a visible keyboard focus indicator", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#price").focus();
+  await expect(page.locator("#price")).toHaveCSS("outline-style", "solid");
+  await expect(page.locator("#price")).toHaveCSS("outline-width", "2px");
 });
 
 test("no critical accessibility problems", async ({ page }) => {
