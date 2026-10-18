@@ -17,6 +17,7 @@ var CONFIG = {
 };
 function clean(v, max) { v = parseFloat(v); if (!isFinite(v) || v < 0) return 0; return Math.min(v, max || 100000); }
 function fees(k, price, o) {
+  o = o || {};
   var qty = clean(o.qty, 100000) || 1;
   var base = price * qty + o.ship, L = [], sum = 0;
   function add(l, v) { L.push([l, v]); sum += v; }
