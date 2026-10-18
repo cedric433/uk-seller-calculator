@@ -56,7 +56,7 @@
     var stats = node("dl", "result-stats");
     stats.appendChild(metric("Seller fees", gbp(x.f.total)));
     stats.appendChild(metric("Margin", (x.f.base ? (x.profit / x.f.base * 100).toFixed(1) : "0.0") + "%"));
-    stats.appendChild(metric("Price for " + gbp($("target").value) + " profit", x.need === null ? "Not reached" : gbp(x.need)));
+    stats.appendChild(metric("Price for " + gbp(targetProfit) + " profit", x.need === null ? "Not reached" : gbp(x.need)));
     card.appendChild(stats);
 
     var details = node("details", "fee-details");
