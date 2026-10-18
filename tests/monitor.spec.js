@@ -17,6 +17,5 @@ test("Etsy UK fees have not changed", async ({ page }) => {
 
 test("Vinted UK seller fees are still zero", async ({ page }) => {
   await page.goto("https://www.vinted.co.uk/pricelist");
-  const text = await page.locator("body").innerText();
-  expect(text.toLowerCase()).toContain("no fees for selling");
+  await expect(page.locator("body")).toContainText(/no fees for selling/i);
 });
