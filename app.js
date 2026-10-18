@@ -199,10 +199,13 @@
     e.addEventListener("input", function () { if (e.id === "ebay-fee-input") syncCategory(); clearPresetState(); save(); render(); });
     e.addEventListener("change", function () { clearPresetState(); save(); render(); $("resultStatus").textContent = "Platform comparison updated."; });
   });
-  $("ebay-category").addEventListener("change", function () {
-    if (this.value !== "") $("cat").value = this.value;
-    save(); render(); $("resultStatus").textContent = "eBay category fee updated.";
-  });
+  var ebayCategory = $("ebay-category");
+  if (ebayCategory) {
+    ebayCategory.addEventListener("change", function () {
+      if (this.value !== "") $("cat").value = this.value;
+      save(); render(); $("resultStatus").textContent = "eBay category fee updated.";
+    });
+  }
   function clearPresetState() {
     document.querySelectorAll("[data-preset]").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
   }
