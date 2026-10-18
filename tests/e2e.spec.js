@@ -69,6 +69,20 @@ test("quantity and category selections recalculate every calculator page", async
   }
 });
 
+test("scroll tracker is wired to the sale, costs, and results on every calculator page", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  for (const path of ["/", "/ebay-fee-calculator-uk.html", "/etsy-fee-calculator-uk.html", "/depop-fee-calculator-uk.html", "/vinted-profit-calculator.html"]) {
+    await page.goto(path);
+    await expect(page.locator(".scroll-tracker")).toBeVisible();
+    for (const target of ["sale-step", "costs-step", "results-step"]) {
+      await expect(page.locator(`#${target}`)).toHaveCount(1);
+      await expect(page.locator(`.track-step[data-target="${target}"]`)).toHaveCount(1);
+    }
+    await page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, document.querySelector('#results-step').getBoundingClientRect().top + window.scrollY - 120)");
+    await expect(page.locator('.track-step[data-target="results-step"]')).toHaveClass(/is-active/);
+  }
+});
+
 test("shows fee caveats next to the affected platform estimates", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".platform-result", { hasText: "Depop UK" })).toContainText("assumes a 0% UK selling fee");

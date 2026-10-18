@@ -3,6 +3,8 @@
   var DEF = {price:30, ship:3, cost:8, shipCost:3, other:0.5, qty:1, cat:11.9, target:5, vat:true, ads:false, boost:false};
   var PRE = {low:{price:6,ship:2.5,cost:1.5,shipCost:2.5,other:0.3}, free:{price:25,ship:0,cost:10,shipCost:6,other:0.5}, high:{price:250,ship:10,cost:150,shipCost:10,other:1}, vatreg:{vat:false}};
   var $ = function (i) { return document.getElementById(i === "cat" ? "ebay-fee-input" : i); };
+  var saveNameField = function () { return $("save-calc-name") || $("note"); };
+  var saveButton = function () { return $("save-calc-btn") || $("saveCalc"); };
   var gbp = function (n) { return (n < 0 ? "-" : "") + "£" + Math.abs(n).toFixed(2); };
   function syncCategory() {
     var select = $("ebay-category");
@@ -120,10 +122,20 @@
     card.appendChild(profitDetails);
     return card;
   }
+  var shimmerPlayed = false;
+  var shimmerObserver = "IntersectionObserver" in window ? new window.IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting || shimmerPlayed) return;
+      entry.target.classList.add("shimmer-active");
+      shimmerPlayed = true;
+      shimmerObserver.unobserve(entry.target);
+    });
+  }, {threshold: 0.25}) : null;
   function render() {
     var r = read(), o = r.o;
     $("warn").textContent = r.w.join(" ");
     var output = $("platformCards"), summary = $("summary");
+    if (shimmerObserver) shimmerObserver.disconnect();
     output.textContent = "";
     summary.textContent = "";
     if (o.price === 0) {
@@ -146,6 +158,14 @@
     summary.appendChild(resultValue);
     summary.appendChild(resultNote);
     sorted.forEach(function (x) { output.appendChild(renderPlatform(x, best, o.target)); });
+    var bestCard = output.querySelector(".platform-result.best");
+    if (bestCard && !shimmerPlayed) {
+      if (shimmerObserver) shimmerObserver.observe(bestCard);
+      else {
+        bestCard.classList.add("shimmer-active");
+        shimmerPlayed = true;
+      }
+    }
   }
   function sources() {
     $("sources").innerHTML = "<p>Rates last updated <b>" + CONFIG.updated + "</b>. Platforms change fees often, so confirm on each site.</p>" + CONFIG.platforms.map(function (p) {
@@ -162,8 +182,8 @@
     var inp = {}; F.forEach(function (f) { inp[f] = $(f).value; }); C.forEach(function (c) { inp[c] = $(c).checked; });
     var best = null;
     CONFIG.platforms.forEach(function (p) { var v = profit(p.k, o.price, o); if (!best || v > best.v) best = {n: p.name, v: v}; });
-    var a = hload(); a.unshift({t: Date.now(), note: ($("save-calc-name").value || "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
-    hsave(a.slice(0, HMAX)); $("save-calc-name").value = ""; renderHistory();
+    var a = hload(); a.unshift({t: Date.now(), note: (saveNameField().value || "").slice(0, 40), inp: inp, best: best.n, profit: best.v});
+    hsave(a.slice(0, HMAX)); saveNameField().value = ""; renderHistory();
     $("resultStatus").textContent = "Calculation saved on this device.";
   }
   function renderHistory() {
@@ -189,11 +209,11 @@
       box.appendChild(row);
     });
   }
-  $("save-calc-btn").addEventListener("click", addHistory);
-  $("save-calc-name").addEventListener("keydown", function (event) {
+  saveButton().addEventListener("click", addHistory);
+  saveNameField().addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
       event.preventDefault();
-      $("save-calc-btn").click();
+      saveButton().click();
     }
   });
   $("clearHist").addEventListener("click", function () {
@@ -232,6 +252,36 @@
       mobileJump.setAttribute("aria-label", editing ? "Edit sale details" : "Compare platform results");
     }, {threshold: 0});
     resultsObserver.observe($("results"));
+  }
+  var tracker = document.querySelector(".scroll-tracker");
+  if (tracker) {
+    var trackSteps = Array.prototype.slice.call(tracker.querySelectorAll(".track-step"));
+    if (trackSteps.length) trackSteps[0].classList.add("is-active");
+    if ("IntersectionObserver" in window) {
+      var trackedSections = trackSteps.map(function (step) {
+        return document.getElementById(step.getAttribute("data-target"));
+      }).filter(function (section) { return !!section; });
+      var observerMargin = Math.floor(window.innerHeight * 0.65);
+      var sectionObserver = new window.IntersectionObserver(function () {
+        var rootBottom = window.innerHeight - observerMargin;
+        var marker = rootBottom / 2;
+        var visible = trackedSections.map(function (section) {
+          var rect = section.getBoundingClientRect();
+          return {target: section, center: rect.top + rect.height / 2, visible: rect.bottom > 0 && rect.top < rootBottom && rect.right > 0 && rect.left < window.innerWidth};
+        }).filter(function (section) { return section.visible; });
+        if (!visible.length) return;
+        visible.sort(function (a, b) {
+          var distance = Math.abs(a.center - marker) - Math.abs(b.center - marker);
+          return distance || trackedSections.indexOf(b.target) - trackedSections.indexOf(a.target);
+        });
+        var activeTarget = visible[0].target.id;
+        trackSteps.forEach(function (step) {
+          if (step.getAttribute("data-target") === activeTarget) step.classList.add("is-active");
+          else step.classList.remove("is-active");
+        });
+      }, {rootMargin: "0px 0px -" + observerMargin + "px 0px", threshold: 0});
+      trackedSections.forEach(function (section) { sectionObserver.observe(section); });
+    }
   }
   document.querySelectorAll("[data-preset]").forEach(function (b) {
     b.setAttribute("aria-pressed", "false");
