@@ -85,7 +85,7 @@ h2 {
 .hero-desc,
 .sub {
   font-size: 18px;
-  color: #a1a1aa;
+  color: var(--muted);
   line-height: 1.5;
   margin: 0;
   max-width: 600px;
