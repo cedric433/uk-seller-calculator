@@ -28,7 +28,7 @@ function fees(k, price, o) {
   if (!L.length) L.push(["Platform fees", 0]);
   return {L: L, total: sum, base: base};
 }
-function profit(k, price, o) { var f = fees(k, price, o), qty = clean(o.qty, 100000) || 1; return f.base - f.total - o.cost * qty - o.shipCost - o.other; }
+function profit(k, price, o) { o = o || {}; var f = fees(k, price, o), qty = clean(o.qty, 100000) || 1; return f.base - f.total - (o.cost || 0) * qty - (o.shipCost || 0) - (o.other || 0); }
 function need(k, o) { /* price needed for target profit, rounded up to the next penny */
   var lo = 0, hi = 5000, i, m;
   if (profit(k, hi, o) < o.target) return null;
