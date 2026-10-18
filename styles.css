@@ -32,8 +32,8 @@ body {
 a { color: var(--accent); }
 
 .hero {
-  background-color: #09090b;
-  background-image: radial-gradient(#27272a 1px, transparent 1px);
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
   background-size: 24px 24px;
   display: flex;
   flex-direction: column;
