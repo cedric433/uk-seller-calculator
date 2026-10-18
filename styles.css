@@ -304,9 +304,14 @@ button[aria-pressed="true"] {
   background: var(--accent-hover);
 }
 
-:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 3px;
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-color: var(--text);
 }
 
 .preset-grid {
