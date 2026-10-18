@@ -5,8 +5,10 @@
   var $ = function (i) { return document.getElementById(i === "cat" ? "ebay-fee-input" : i); };
   var gbp = function (n) { return (n < 0 ? "-" : "") + "£" + Math.abs(n).toFixed(2); };
   function syncCategory() {
+    var select = $("ebay-category");
+    if (!select) return;
     var rate = $("cat").value;
-    $("ebay-category").value = Array.prototype.some.call($("ebay-category").options, function (option) { return option.value === rate; }) ? rate : "";
+    select.value = Array.prototype.some.call(select.options, function (option) { return option.value === rate; }) ? rate : "";
   }
   function apply(s) { F.forEach(function (f) { if (s[f] !== undefined) $(f).value = s[f]; }); C.forEach(function (c) { if (s[c] !== undefined) $(c).checked = !!s[c]; }); syncCategory(); }
   function save() { try { var s = {}; F.forEach(function (f) { s[f] = $(f).value; }); C.forEach(function (c) { s[c] = $(c).checked; }); localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage unavailable */ } }
