@@ -259,6 +259,7 @@
   }
   if ("IntersectionObserver" in window && document.querySelector(".scroll-tracker")) {
     var trackerObserver;
+    var trackSteps = document.querySelectorAll(".track-step");
     function observeTrackerSections() {
       if (trackerObserver) trackerObserver.disconnect();
       // Percentage root margins use the viewport width, so calculate vertical bands from its height.
@@ -266,11 +267,12 @@
       trackerObserver = new window.IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) return;
-          document.querySelectorAll(".track-step").forEach(function (step) {
+          trackSteps.forEach(function (step) {
             step.classList.remove("active");
           });
-          var activeStep = document.querySelector('.track-step[data-target="' + entry.target.id + '"]');
-          if (activeStep) activeStep.classList.add("active");
+          trackSteps.forEach(function (step) {
+            if (step.getAttribute("data-target") === entry.target.id) step.classList.add("active");
+          });
         });
       }, {
         root: null,
@@ -285,7 +287,14 @@
     }
 
     observeTrackerSections();
-    window.addEventListener("resize", observeTrackerSections);
+    var trackerResizeFrame = null;
+    window.addEventListener("resize", function () {
+      if (trackerResizeFrame !== null) return;
+      trackerResizeFrame = window.requestAnimationFrame(function () {
+        trackerResizeFrame = null;
+        observeTrackerSections();
+      });
+    });
   }
   document.querySelectorAll("[data-preset]").forEach(function (b) {
     b.setAttribute("aria-pressed", "false");
