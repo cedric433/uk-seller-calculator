@@ -106,10 +106,10 @@ h2 {
   gap: 8px;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid #27272a;
+  border: 1px solid var(--line);
   font-size: 13px;
   font-weight: 500;
-  color: #a1a1aa;
+  color: var(--muted);
   background: transparent;
 }
 
