@@ -105,17 +105,15 @@
 
     var profitDetails = node("details", "profit-details");
     var profitSummary = node("summary", "", "Profit breakdown");
-    var breakdown = node("ul", "profit-breakdown");
+    var breakdown = node("div", "profit-breakdown");
     [
-      ["Total Revenue", gbp(x.revenue)],
-      ["Platform Fee", gbp(-x.f.total)],
-      ["Total Item Cost", gbp(-x.itemCost)],
-      ["Shipping & Packaging", gbp(-(x.shippingCost + x.packagingCost))],
-      ["Net Profit", gbp(x.profit)]
+      ["Revenue", gbp(x.revenue), "font-bold"],
+      ["Total costs", gbp(x.f.total + x.itemCost + x.shippingCost + x.packagingCost), ""],
+      ["Total profit", gbp(x.profit), "text-blue"]
     ].forEach(function (line, index) {
-      var row = node("li", index === 4 ? "net-profit" : "");
-      row.appendChild(node("span", "", line[0]));
-      row.appendChild(node("b", "", line[1]));
+      var row = node("div", "result-row" + (index === 2 ? " highlight" : ""));
+      row.appendChild(node("span", "row-label", line[0]));
+      row.appendChild(node("span", "row-value " + line[2], line[1]));
       breakdown.appendChild(row);
     });
     profitDetails.appendChild(profitSummary);
@@ -259,7 +257,7 @@
       var editing = entries[0].isIntersecting;
       mobileJump.href = editing ? "#price" : "#platformResults";
       mobileJump.textContent = editing ? "Edit sale details ↑" : "Compare platforms ↓";
-      mobileJump.setAttribute("aria-label", editing ? "Edit sale details" : "Compare platform results");
+      mobileJump.setAttribute("aria-label", editing ? "Edit sale details" : "Compare platforms");
     }, {threshold: 0});
     resultsObserver.observe($("results"));
   }

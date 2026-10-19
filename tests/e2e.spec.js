@@ -78,13 +78,15 @@ test("quantity and category selections recalculate every calculator page", async
     await expect(page.locator("#ebay-fee-input")).toHaveValue("6.9");
     await expect(page.locator("#platformCards .platform-result").filter({ hasText: "eBay UK (business)" })).toContainText("Final value fee (6.9%)");
     await page.fill("#qty", "2");
-    await expect(page.locator(".platform-result", { hasText: "Vinted UK" })).toContainText("£43.50");
-    await expect(page.locator(".profit-details summary").first()).toHaveText("Profit breakdown");
-    await page.locator(".profit-details summary").first().click();
-    await expect(page.locator(".profit-breakdown").first()).toContainText("Total Revenue");
-    await expect(page.locator(".profit-breakdown").first()).toContainText("Total Item Cost");
-    await expect(page.locator(".profit-breakdown").first()).toContainText("Shipping & Packaging");
-    await expect(page.locator(".profit-breakdown").first()).toContainText("Net Profit");
+    const vintedResult = page.locator(".platform-result", { hasText: "Vinted UK" });
+    await expect(vintedResult).toContainText("£43.50");
+    await expect(vintedResult.locator(".profit-details summary")).toHaveText("Profit breakdown");
+    await vintedResult.locator(".profit-details summary").click();
+    const breakdownRows = vintedResult.locator(".profit-breakdown .result-row");
+    await expect(breakdownRows).toHaveCount(3);
+    await expect(breakdownRows.nth(0)).toContainText("Revenue£63.00");
+    await expect(breakdownRows.nth(1)).toContainText("Total costs£19.50");
+    await expect(breakdownRows.nth(2)).toContainText("Total profit£43.50");
   }
 });
 
@@ -134,12 +136,14 @@ test("mobile comparison fits the viewport and keeps fee details expandable", asy
   expect(contentWidth).toBeLessThanOrEqual(page.viewportSize().width);
   const mobileJump = page.locator("#mobileJump");
   await expect(mobileJump).toHaveText("Compare platforms ↓");
+  await expect(mobileJump).toHaveAccessibleName("Compare platforms");
   await page.locator("#results").scrollIntoViewIfNeeded();
   await expect(mobileJump).toHaveText("Edit sale details ↑");
+  await expect(mobileJump).toHaveAccessibleName("Edit sale details");
   await mobileJump.click();
   await expect(page).toHaveURL(/#price$/);
   await page.locator("#price").focus();
-  await expect(mobileJump).toBeHidden();
+  await expect(mobileJump).toBeVisible();
   const feeSummary = page.locator(".fee-details summary").first();
   await feeSummary.scrollIntoViewIfNeeded();
   await feeSummary.click();
@@ -186,11 +190,13 @@ test("Enter recalculates a numeric input without submitting the page", async ({ 
 test("interactive controls show a visible keyboard focus indicator", async ({ page }) => {
   await page.goto("/");
   await page.locator("#price").focus();
-  await expect(page.locator("#price")).toHaveCSS("outline-style", "solid");
-  await expect(page.locator("#price")).toHaveCSS("outline-width", "2px");
+  await expect(page.locator("#price")).toHaveCSS("outline-style", "none");
+  await expect(page.locator("#price")).toHaveCSS("border-color", "rgb(0, 97, 254)");
+  await expect(page.locator("#price")).toHaveCSS("box-shadow", "rgba(0, 97, 254, 0.15) 0px 0px 0px 3px");
   await expect(page.locator("#price")).toHaveCSS("transform", "none");
   await page.locator("#save-calc-name").focus();
-  await expect(page.locator("#save-calc-name")).not.toHaveCSS("transform", "none");
+  await expect(page.locator("#save-calc-name")).toHaveCSS("border-color", "rgb(0, 97, 254)");
+  await expect(page.locator("#save-calc-name")).toHaveCSS("box-shadow", "rgba(0, 97, 254, 0.15) 0px 0px 0px 3px");
 });
 
 test("no critical accessibility problems", async ({ page }) => {
